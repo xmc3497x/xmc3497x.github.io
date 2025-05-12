@@ -3,60 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XMC工作室 - 专业高效的HTML设计工作室</title>
+    <title>XMC工作室</title>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <style>
-        body, html {
+        body {
+            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            overflow: hidden; /* 防止滚动条 */
+            padding: 20px;
+            background-color: #f5f5f5;
         }
-        #iframe-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            z-index: 9999; /* 确保在最上层 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 18px;
+            text-align: center;
             color: #666;
+            padding: 40px 0;
         }
         .error {
-            color: red;
-            text-align: center;
-            padding: 20px;
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .content {
+            margin-top: 20px;
+        }
+        #retry-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #retry-btn:hover {
+            background: #1565c0;
         }
     </style>
 </head>
 <body>
-    <div id="content">
-        <p class="loading">Loading...</p>
+    <div class="container">
+        <div id="status">
+            <p class="loading">正在安全加载内容，请稍候...</p>
+        </div>
+        <div id="content" class="content"></div>
     </div>
 
     <script>
-        window.onload = function() {
-            const contentDiv = document.getElementById("content");
-            const link = "https://us1.wuaipan.com/api/v3/slave/source/0/dXBsb2Fkcy8yMDI1LzA0LzExLzdmdmhLUlpUX-acgOaWsOWumOe9kS50eHQ/%E6%9C%80%E6%96%B0%E5%AE%98%E7%BD%91.txt?sign=xxMZik1-I0RGM_fAQYHnJ7BvlwZOUV_58KxxwPBnVpc%3D%3A0";
+        document.addEventListener('DOMContentLoaded', function() {
+            // 原始链接（可能是HTTP）
+            const insecureLink = "http://us1.wuaipan.com/api/v3/slave/source/0/dXBsb2Fkcy8yMDI1LzA0LzExLzdmdmhLUlpUX-acgOaWsOWumOe9kS50eHQ/%E6%9C%80%E6%96%B0%E5%AE%98%E7%BD%91.txt?sign=xxMZik1-I0RGM_fAQYHnJ7BvlwZOUV_58KxxwPBnVpc%3D%3A0";
+            
+            // 自动升级为HTTPS链接
+            const secureLink = upgradeToHttps(insecureLink);
+            
+            loadContent(secureLink);
+            
+            // 重试按钮功能
+            document.getElementById('retry-btn')?.addEventListener('click', function() {
+                document.getElementById('status').innerHTML = '<p class="loading">正在重新加载内容，请稍候...</p>';
+                loadContent(secureLink);
+            });
+        });
 
-            fetch(link)
-                .then(response => {
-                    if (!response.ok) throw new Error("无法获取目标网址");
-                    return response.text();
-                })
-                .then(url => {
-                    const targetUrl = url.trim();
-                    contentDiv.innerHTML = `<iframe id="iframe-container" src="${targetUrl}" allowfullscreen></iframe>`;
-                })
-                .catch(error => {
-                    contentDiv.innerHTML = `<p class="error">加载失败：${error.message}</p>`;
+        // 自动将HTTP升级为HTTPS
+        function upgradeToHttps(url) {
+            try {
+                const urlObj = new URL(url);
+                if (urlObj.protocol === 'http:') {
+                    urlObj.protocol = 'https:';
+                    return urlObj.toString();
+                }
+                return url;
+            } catch (e) {
+                console.error('URL解析错误:', e);
+                return url;
+            }
+        }
+
+        // 加载内容
+        function loadContent(url) {
+            fetch(url, {
+                mode: 'cors', // 明确使用CORS
+                credentials: 'omit', // 不发送凭据
+                redirect: 'follow' // 跟随重定向
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`网络请求失败: ${response.status} ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                const finalUrl = text.trim();
+                // 检查最终URL是否是HTTPS
+                if (!finalUrl.startsWith('https://')) {
+                    throw new Error('目标网址不是安全的HTTPS连接');
+                }
+                
+                document.getElementById('status').innerHTML = '';
+                // 使用iframe安全加载内容
+                document.getElementById('content').innerHTML = `
+                    <iframe src="${finalUrl}" style="width:100%; height:600px; border:none;"></iframe>
+                    <p style="font-size:12px; color:#666;">安全加载的外部内容</p>
+                `;
+            })
+            .catch(error => {
+                console.error('加载错误:', error);
+                document.getElementById('status').innerHTML = `
+                    <div class="error">
+                        <p>内容加载失败: ${error.message}</p>
+                        <button id="retry-btn">重试</button>
+                        <p style="font-size:12px; margin-top:10px;">如果继续遇到此问题，请联系该网站的所有者<br>xmc3497@163.com</p>
+                    </div>
+                `;
+                // 重新绑定重试按钮事件
+                document.getElementById('retry-btn').addEventListener('click', function() {
+                    document.getElementById('status').innerHTML = '<p class="loading">正在重新加载内容，请稍候...</p>';
+                    loadContent(url);
                 });
-        };
+            });
+        }
     </script>
 </body>
 </html>
