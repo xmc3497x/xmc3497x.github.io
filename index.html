@@ -13,7 +13,7 @@
         }
         
         body {
-            overflow: hidden; /* 禁止页面滚动 */
+            overflow: hidden;
             height: 100vh;
         }
         
@@ -39,6 +39,24 @@
         }
         
         .bg-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(8px);
+            transform: scale(1.1);
+        }
+        
+        .offline-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            display: none;
+        }
+        
+        .offline-bg img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -142,9 +160,16 @@
 <body>
     <!-- 封面部分 -->
     <section class="cover">
+        <!-- 在线背景 -->
         <div class="bg-image">
-            <img src="https://bing.img.run/1920x1080.php" alt="Bing每日壁纸1080P高清" />
+            <img src="https://bing.img.run/1920x1080.php" alt="Bing每日壁纸1080P高清" id="online-bg">
         </div>
+        
+        <!-- 离线背景 -->
+        <div class="offline-bg">
+            <img src="bj.png" alt="XMC工作室背景" id="offline-bg">
+        </div>
+        
         <div class="overlay"></div>
         
         <!-- 添加的logo -->
@@ -156,12 +181,12 @@
         <!-- 按钮区域 -->
         <div class="button-section">
             <div class="button-row">
-                <a href="XMCoffice/Download.html" class="btn">产品下载</a>
-                <a href="XMCoffice/call.html" class="btn">联系我们</a>
+                <a href="#" class="btn">项目案例</a>
+                <a href="#" class="btn">关于我们</a>
             </div>
             <div class="button-row">
-                <a href="https://shop.xiaoman.top//links/22C1816E" class="btn">进入商店</a>
-                <a href="XMCoffice/helps.html" class="btn">帮助中心</a>
+                <a href="#" class="btn">联系我们</a>
+                <a href="#" class="btn">客户评价</a>
             </div>
         </div>
     </section>
@@ -169,6 +194,39 @@
     <script>
         // 禁止滚动
         document.body.style.overflow = 'hidden';
+        
+        // 检测网络状态并设置背景
+        window.addEventListener('load', function() {
+            const onlineBg = document.getElementById('online-bg');
+            const offlineBg = document.querySelector('.offline-bg');
+            
+            // 检查网络状态
+            function updateOnlineStatus() {
+                if (navigator.onLine) {
+                    // 在线状态 - 尝试加载在线图片
+                    onlineBg.onerror = function() {
+                        // 在线图片加载失败，使用离线背景
+                        offlineBg.style.display = 'block';
+                    };
+                    onlineBg.src = "https://bing.img.run/1920x1080.php?" + new Date().getTime(); // 添加时间戳避免缓存
+                } else {
+                    // 离线状态 - 直接显示离线背景
+                    offlineBg.style.display = 'block';
+                }
+            }
+            
+            // 初始检查
+            updateOnlineStatus();
+            
+            // 监听网络状态变化
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            
+            // 检查在线图片是否加载成功
+            onlineBg.onload = function() {
+                offlineBg.style.display = 'none';
+            };
+        });
     </script>
 </body>
 </html>
