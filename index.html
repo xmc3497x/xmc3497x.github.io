@@ -13,22 +13,22 @@
         }
         
         body {
-            overflow: hidden; /* 禁止页面滚动 */
+            overflow: hidden;
             height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        
-        /* 封面样式 */
+
         .cover {
             position: relative;
-            height: 100vh;
-            width: 100%;
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
         }
-        
+
         .bg-image {
             position: absolute;
             top: 0;
@@ -37,7 +37,7 @@
             height: 100%;
             z-index: -2;
         }
-        
+
         .bg-image img {
             width: 100%;
             height: 100%;
@@ -45,7 +45,7 @@
             filter: blur(8px);
             transform: scale(1.1);
         }
-        
+
         .overlay {
             position: absolute;
             top: 0;
@@ -55,7 +55,7 @@
             background-color: rgba(0, 0, 0, 0.5);
             z-index: -1;
         }
-        
+
         .logo {
             width: 100px;
             height: 100px;
@@ -63,7 +63,7 @@
             opacity: 0;
             animation: fadeInUp 1s ease-out 0.5s forwards;
         }
-        
+
         .title {
             color: white;
             font-size: 3rem;
@@ -74,7 +74,7 @@
             animation: fadeInUp 1.5s ease-out forwards;
             text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
-        
+
         .subtitle {
             color: rgba(255, 255, 255, 0.9);
             font-size: 1.2rem;
@@ -86,30 +86,51 @@
             max-width: 80%;
             margin-bottom: 30px;
         }
-        
+
         @keyframes fadeInUp {
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
-        /* 按钮区域样式 */
+
+        /* 按钮区域响应式布局 */
         .button-section {
-            position: relative;
-            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            padding: 0 20px; /* 移动端内边距 */
         }
-        
+
         .button-row {
             display: flex;
             justify-content: center;
             width: 100%;
             margin-bottom: 15px;
+            flex: 1;
         }
-        
+
+        /* 电脑端/横屏布局 */
+        @media (min-width: 768px) {
+            .button-section {
+                flex-direction: row; /* 横向排列 */
+                justify-content: center;
+                padding: 0;
+            }
+
+            .button-row {
+                flex-direction: row;
+                margin-bottom: 0;
+                margin: 0 10px; /* 按钮组间距 */
+            }
+
+            /* 合并两行按钮到同一行 */
+            .button-section > div:first-child {
+                order: 1; /* 调整显示顺序 */
+            }
+        }
+
         .btn {
             display: inline-block;
             padding: 10px 25px;
@@ -126,13 +147,14 @@
             transform: translateY(20px);
             animation: fadeInUp 1s ease-out 1s forwards;
         }
-        
+
         .btn:hover {
             background-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-        
+
+        /* 按钮动画延迟（保持原有顺序） */
         .btn:nth-child(1) { animation-delay: 1s; }
         .btn:nth-child(2) { animation-delay: 1.2s; }
         .btn:nth-child(3) { animation-delay: 1.4s; }
@@ -140,25 +162,24 @@
     </style>
 </head>
 <body>
-    <!-- 封面部分 -->
     <section class="cover">
         <div class="bg-image">
             <img src="https://bing.img.run/1920x1080.php" alt="Bing每日壁纸1080P高清" />
         </div>
         <div class="overlay"></div>
         
-        <!-- 添加的logo -->
         <img src="appIcon.png" alt="XMC工作室logo" class="logo">
         
         <h1 class="title">XMC工作室</h1>
         <p class="subtitle">专业高效的HTML设计工作室</p>
         
-        <!-- 按钮区域 -->
         <div class="button-section">
+            <!-- 第一组按钮 -->
             <div class="button-row">
                 <a href="XMCoffice/Download.html" class="btn">产品下载</a>
                 <a href="XMCoffice/call.html" class="btn">联系我们</a>
             </div>
+            <!-- 第二组按钮 -->
             <div class="button-row">
                 <a href="https://shop.xiaoman.top//links/22C1816E" class="btn">进入商店</a>
                 <a href="XMCoffice/helps.html" class="btn">帮助中心</a>
