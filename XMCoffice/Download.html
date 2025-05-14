@@ -27,6 +27,8 @@
             overflow-x: hidden;
             color: var(--text-color);
             background-color: var(--bg-color);
+            max-width: 2560px;
+            margin: 0 auto;
         }
         
         /* 导航栏 */
@@ -46,6 +48,28 @@
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--primary-color);
+            margin-right: 20px;
+        }
+        
+        /* 搜索框 */
+        .search-box {
+            flex-grow: 1;
+            max-width: 400px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(30, 136, 229, 0.3);
         }
         
         /* 主内容区 */
@@ -54,6 +78,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding-bottom: 50px;
+            width: 100%;
         }
         
         /* 产品分类标题 */
@@ -70,6 +95,8 @@
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
             margin-bottom: 40px;
+            width: 100%;
+            overflow: hidden;
         }
         
         /* 产品卡片 */
@@ -94,6 +121,7 @@
             justify-content: center;
             min-height: 160px;
             overflow: hidden;
+            background: #f0f0f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23ccc"><rect width="80" height="80" x="10" y="10"/></svg>') no-repeat center;
         }
         
         .product-image img {
@@ -148,18 +176,27 @@
             border-radius: 4px;
             font-size: 0.9rem;
             transition: background-color 0.3s;
+            white-space: nowrap;
+            margin-bottom: 5px;
         }
         
         .download-btn:hover {
             background-color: var(--primary-hover);
         }
         
+        .download-btn.secondary {
+            background-color: #666;
+        }
+        
         /* 页脚 */
         footer {
             background-color: #333;
             color: #eee;
-            padding: 30px 5%;
+            padding: 30px 0;
             text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
         }
         
         .footer-links {
@@ -167,30 +204,44 @@
             justify-content: center;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            gap: 15px;
         }
         
         .footer-link {
             color: #eee;
-            margin: 0 10px;
             text-decoration: none;
-            font-size: 0.8rem; /* 缩小链接文字 */
+            font-size: 0.8rem;
         }
         
-        .copyright {
-            font-size: 0.8rem; /* 缩小版权文字 */
-            color: #aaa;
+        /* 横屏优化 */
+        @media (min-width: 1024px) and (orientation: landscape) {
+            .products-container {
+                gap: 30px;
+            }
+            
+            footer {
+                padding: 40px 0;
+            }
+            
+            .download-btn {
+                padding: 10px 20px;
+            }
         }
     </style>
 </head>
 <body>
     <!-- 导航栏 -->
     <nav class="navbar">
-        <div class="logo">XMC工作室 - 产品下载</div>
+        <div class="logo">XMC工作室</div>
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="搜索产品..." id="searchInput">
+        </div>
     </nav>
     
     <!-- 主内容区 -->
     <div class="container">
-        <h1 class="category-title">热门应用</h1>
+        <h1 hidden>XMC工作室 - 产品下载</h1>
+        <h2 class="category-title">热门应用</h2>
         <div class="products-container">
             <!-- 产品卡片1 -->
             <div class="product-card">
@@ -223,10 +274,11 @@
                     <a href="https://www.now61.com/f/ygNxTe/xmc%E5%B0%8F%E6%B8%B8%E6%88%8F%20v2.0_sign.apk" class="download-btn">Android版本下载</a> Windows版本敬请期待
                 </div>
             </div>
+        </div>
         
-        <h1 class="category-title">移动应用</h1>
+        <h2 class="category-title">移动应用</h2>
         <div class="products-container">
-            <!-- 产品卡片4 -->
+            <!-- 产品卡片3 -->
             <div class="product-card">
                 <div class="product-image">
                     <div class="loading-spinner"></div>
@@ -235,15 +287,14 @@
                 <div class="product-info">
                     <h3 class="product-name">XMC浏览器</h3>
                     <p class="product-desc">xmc浏览器是一款纯净绿色的浏览器，用户可以将网页添加至主页面，一键直达更方便！页面十分简洁，全屏浏览更舒心！</p>
-                    <p>该应用状态：<b><font color="orange">缓更 </font>当前最新版本v1.0</b></p>
+                    <p>该应用状态：<b><font color="yellow">缓更 </font>当前最新版本v1.0</b></p>
                     <br>
                     <a href="https://www.now61.com/f/GwWbHE/xmc%E6%B5%8F%E8%A7%88%E5%99%A8_1.0_20250117_141725.apk" class="download-btn">立即下载</a>
-                    <a href="https://drive.almondcloud.cn/f/QvBOuE/xmc%E6%B5%8F%E8%A7%88%E5%99%A8_1.0_20250117_141725.apk" class="download-btn">备用下载</a>
-                    <a href="https://pan.gongyun.org/f/GDJLIp/xmc%E6%B5%8F%E8%A7%88%E5%99%A8_1.0_20250117_141725.apk" class="download-btn">海外链接下载</a>
+                    <a href="https://drive.almondcloud.cn/f/QvBOuE/xmc%E6%B5%8F%E8%A7%88%E5%99%A8_1.0_20250117_141725.apk" class="download-btn secondary">备用下载</a>
                 </div>
             </div>
             
-            <!-- 产品卡片5 -->
+            <!-- 产品卡片4 -->
             <div class="product-card">
                 <div class="product-image">
                     <div class="loading-spinner"></div>
@@ -255,11 +306,11 @@
                     <p>该应用状态：<b><font color="red">停止更新 </font>当前最新版本v1.0</b></p>
                     <br>
                     <a href="https://www.now61.com/f/e7BVtV/xmc%E5%B7%A5%E5%85%B7%E7%AE%B1.apk" class="download-btn">立即下载</a>
-                    <a href="https://drive.almondcloud.cn/f/Qv29uE/xmc%E5%B7%A5%E5%85%B7%E7%AE%B1.apk" class="download-btn">备用下载</a>
-                    <a href="https://pan.gongyun.org/f/JwbXfJ/xmc%E5%B7%A5%E5%85%B7%E7%AE%B1.apk" class="download-btn">海外链接下载</a>
+                    <a href="https://drive.almondcloud.cn/f/Qv29uE/xmc%E5%B7%A5%E5%85%B7%E7%AE%B1.apk" class="download-btn secondary">备用下载</a>
                 </div>
             </div>
         </div>
+    </div>
     
     <!-- 页脚 -->
     <footer>
@@ -269,11 +320,11 @@
             <a href="https://shop.xiaoman.top//links/22C1816E" class="footer-link">进入商店</a>
             <a href="helps.html" class="footer-link">帮助中心</a>
         </div>
-        <div class="copyright">Copyright © 2024-2025 XMC工作室</div>
+        <div class="copyright">Copyright © 2024-<script>document.write(new Date().getFullYear())</script> XMC工作室</div>
     </footer>
 
     <script>
-        // 图片懒加载和加载状态处理
+        // 图片懒加载
         document.addEventListener('DOMContentLoaded', function() {
             const lazyImages = document.querySelectorAll('.product-image img[data-src]');
             const imageObserver = new IntersectionObserver((entries, observer) => {
@@ -302,7 +353,26 @@
             lazyImages.forEach(img => {
                 imageObserver.observe(img);
             });
+
+            // 搜索功能
+            const searchInput = document.getElementById('searchInput');
+            const productCards = document.querySelectorAll('.product-card');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                productCards.forEach(card => {
+                    const name = card.querySelector('.product-name').textContent.toLowerCase();
+                    const desc = card.querySelector('.product-desc').textContent.toLowerCase();
+                    
+                    if (name.includes(searchTerm) || desc.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
         });
     </script>
 </body>
-</html>
+    </html>
