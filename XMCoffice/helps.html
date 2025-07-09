@@ -4,165 +4,231 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XMC工作室 - 帮助中心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #1e88e5;
             --primary-hover: #1565c0;
+            --secondary-color: #ff6f00;
             --text-color: #333;
             --text-light: #666;
-            --bg-color: #f5f5f5;
+            --bg-color: #f5f7fa;
             --white: #ffffff;
-            --sidebar-width: 280px;
-            --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            --sidebar-width: 300px;
+            --header-height: 70px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Microsoft YaHei', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
             overflow-x: hidden;
             color: var(--text-color);
             background-color: var(--bg-color);
+            line-height: 1.6;
         }
         
         /* 导航栏 */
         .navbar {
-            background-color: var(--white);
-            height: 60px;
+            background: linear-gradient(135deg, #1e88e5, #0d47a1);
+            height: var(--header-height);
             box-shadow: var(--shadow);
             display: flex;
             align-items: center;
             padding: 0 5%;
             position: fixed;
             width: 100%;
-            z-index: 100;
+            z-index: 1000;
         }
         
         .logo {
+            display: flex;
+            align-items: center;
             font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary-color);
+            font-weight: 700;
+            color: var(--white);
+            text-decoration: none;
+        }
+        
+        .logo-img {
+            height: 40px;
+            width: auto;
+            margin-right: 15px;
         }
         
         /* 主布局 */
         .main-container {
             display: flex;
-            padding-top: 80px;
-            min-height: calc(100vh - 60px);
+            padding-top: var(--header-height);
+            min-height: calc(100vh - var(--header-height));
         }
         
         /* 侧边栏目录 */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--white);
-            padding: 20px 0;
-            position: fixed;
-            height: calc(100vh - 60px);
+            padding: 30px 0;
+            position: sticky;
+            top: var(--header-height);
+            height: calc(100vh - var(--header-height));
             overflow-y: auto;
             box-shadow: var(--shadow);
+            transition: var(--transition);
+            z-index: 100;
         }
         
         .sidebar-section {
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            padding: 0 20px;
         }
         
         .sidebar-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            padding: 10px 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 10px 15px;
             color: var(--primary-color);
             border-left: 4px solid var(--primary-color);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-title i {
+            font-size: 1.3rem;
+            color: var(--secondary-color);
         }
         
         .sidebar-link {
-            display: block;
-            padding: 10px 20px 10px 30px;
+            display: flex;
+            align-items: center;
+            padding: 12px 15px 12px 35px;
             color: var(--text-color);
             text-decoration: none;
-            transition: all 0.2s;
+            transition: var(--transition);
             border-left: 3px solid transparent;
+            margin-bottom: 5px;
+            border-radius: 0 30px 30px 0;
         }
         
         .sidebar-link:hover, .sidebar-link.active {
             color: var(--primary-color);
-            background-color: rgba(30, 136, 229, 0.05);
+            background: linear-gradient(to right, rgba(30, 136, 229, 0.1), transparent);
             border-left-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+        
+        .sidebar-link i {
+            margin-right: 10px;
+            font-size: 0.9rem;
+            width: 20px;
+            text-align: center;
         }
         
         /* 内容区域 */
         .content {
             flex: 1;
-            margin-left: var(--sidebar-width);
-            padding: 30px;
-            background-color: var(--white);
-            min-height: calc(100vh - 60px);
+            padding: 40px;
+            min-height: calc(100vh - var(--header-height));
+            background-color: var(--bg-color);
+        }
+        
+        .content-header {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
             box-shadow: var(--shadow);
         }
         
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumb i {
+            margin: 0 10px;
+            font-size: 0.8rem;
+        }
+        
+        .content-title {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .content-title i {
+            color: var(--secondary-color);
+        }
+        
+        .content-subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+        }
+        
         .help-article {
-            display: none;
-        }
-        
-        .help-article.active {
-            display: block;
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            background: var(--white);
+            border-radius: 10px;
+            padding: 35px 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
         }
         
         .article-title {
             font-size: 1.8rem;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            color: var(--primary-color);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f4f8;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .article-title i {
+            color: var(--secondary-color);
+            background: rgba(255, 111, 0, 0.1);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
         }
         
         .article-content {
             line-height: 1.8;
         }
         
-        .article-content h2 {
-            font-size: 1.4rem;
-            margin: 25px 0 15px;
-            color: var(--text-color);
-        }
-        
-        .article-content p {
-            margin-bottom: 15px;
-            color: var(--text-light);
-        }
-        
-        .article-content ul, .article-content ol {
-            margin-bottom: 15px;
-            padding-left: 20px;
-        }
-        
-        .article-content li {
-            margin-bottom: 8px;
-            color: var(--text-light);
-        }
-        
-        .article-content code {
-            background-color: #f0f0f0;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        
         /* 页脚 */
         footer {
-            background-color: #333;
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
             color: #eee;
-            padding: 20px 5%;
+            padding: 30px 5%;
             text-align: center;
             margin-left: var(--sidebar-width);
         }
@@ -170,19 +236,28 @@
         .footer-links {
             display: flex;
             justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
+            gap: 20px;
         }
         
         .footer-link {
             color: #eee;
-            margin: 0 8px;
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        
+        .footer-link:hover {
+            color: var(--secondary-color);
+            transform: translateY(-2px);
         }
         
         .copyright {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: #aaa;
         }
         
@@ -211,7 +286,10 @@
 <body>
     <!-- 导航栏 -->
     <nav class="navbar">
-        <div class="logo">XMC工作室 - 帮助中心</div>
+        <div class="logo">
+            <img src="https://www.now61.cn/f/BxzXfp/icon.png" alt="XMC工作室logo" class="logo-img">
+            XMC工作室 - 帮助中心
+        </div>
     </nav>
     
     <!-- 主布局 -->
@@ -219,82 +297,146 @@
         <!-- 侧边栏目录 -->
         <div class="sidebar">
             <div class="sidebar-section">
-                <div class="sidebar-title">常见问题</div>
-                <a href="#question-answer" class="sidebar-link active">一问一答</a>
+                <div class="sidebar-title">
+                    <i class="fas fa-question-circle"></i>
+                    常见问题
+                </div>
+                <a href="#question-answer" class="sidebar-link active">
+                    <i class="fas fa-comments"></i>
+                    一问一答
+                </a>
             </div>
             
             <div class="sidebar-section">
-                <div class="sidebar-title">专项解答</div>
-                <a href="#interface-overview" class="sidebar-link">开发中</a>
+                <div class="sidebar-title">
+                    <i class="fas fa-tools"></i>
+                    专项解答
+                </div>
+                <a href="#interface-overview" class="sidebar-link">
+                    <i class="fas fa-wrench"></i>
+                    开发中
+                </a>
             </div>
-            
+        </div>
+        
         <!-- 内容区域 -->
         <div class="content">
-            <!-- 一问一答 -->
-            <div id="question-answer" class="help-article active">
-                <h1 class="article-title">XMC工作室 - 一问一答</h1>
+            
+                      
+            <!-- 帮助中心内容 -->
+            <div id="" class="help-article active">
+                <h2 class="article-title">
+                    <i class="fas fa-info-circle"></i>
+                    XMC工作室帮助中心
+                </h2>
+                
                 <div class="article-content">
-                    <p>这里收集了用户提出的常见问题，并对问题进行简要回答</p>
+                    <p>欢迎使用XMC工作室帮助中心。我们致力于为您提供最好的产品支持服务。</p>
                     
-                    <h2>常见问题</h2>
-                    <p><font color="red">Q：为什么我在部分设备使用XMC工作室产品时会遇到部分功能无法使用与渲染出错问题？</font></p>
-                    <p><font color="green">A：请避免在Android9.0以下的安卓设备使用XMC工作室产品，使用更高版本的安卓设备即可解决该问题</font></p>
-                    </br>
+                    <h2>获取帮助</h2>
+                    <p>如需获取帮助，请通过以下方式联系我们：</p>
+                    <ul>
+                        <li>访问我们的官方网站</li>
+                        <li>通过联系页面发送您的问题</li>
+                        <li>查看我们的产品文档</li>
+                    </ul>
                 </div>
             </div>
             
-            <!-- 界面概览 -->
+            <div id="question-answer" class="content-header">
+                <h1 class="content-title">
+                    <i class="fas fa-question-circle"></i>
+                    XMC工作室 - 一问一答
+                </h1>
+                
+                <p class="content-subtitle">
+                    在这里您可以找到关于XMC工作室产品的使用帮助和支持信息
+                </p>
+                </br>
+                <p><font color="red">Q：为什么有时打开exe会报错？</font></p>
+                <p><font color="green">A：请检查是否已开启一个实例，多产品不能同时运行。</font></p>
+                </br>
+                <p><font color="red">Q：为什么在部分Android设备上运行软件时渲染与功能会出错？</font></p>
+                <p><font color="green">A：请使用Android9.0版本以上的设备运行软件</font></p>
+                
+            </div>
+  
+            <!-- 开发中内容 -->
             <div id="interface-overview" class="help-article">
-                <h1 class="article-title">待开发</h1>
+                <h2 class="article-title">
+                    <i class="fas fa-code"></i>
+                    开发中
+                </h2>
+                
                 <div class="article-content">
-
+                    <p>本部分内容正在开发中，敬请期待。</p>
                 </div>
             </div>
-            
-            <!-- 更多文章内容可以根据需要添加 -->
-            
         </div>
     </div>
     
     <!-- 页脚 -->
     <footer>
         <div class="footer-links">
-            <a href="https://xmc3497x.github.io/" class="footer-link">返回首页</a>
-            <a href="Download.html" class="footer-link">产品下载</a>
-            <a href="call.html" class="footer-link">联系我们</a>
-            <a href="https://shop.xiaoman.top//links/22C1816E" class="footer-link">进入商店</a>
+            <a href="https://xmc3497x.github.io/" class="footer-link">
+                <i class="fas fa-home"></i> 返回首页
+            </a>
+            <a href="Download.html" class="footer-link">
+                <i class="fas fa-download"></i> 产品下载
+            </a>
+            <a href="call.html" class="footer-link">
+                <i class="fas fa-phone-alt"></i> 联系我们
+            </a>
+            <a href="https://shop.xiaoman.top//links/22C1816E" class="footer-link">
+                <i class="fas fa-shopping-cart"></i> 进入商店
+            </a>
         </div>
         <div class="copyright">Copyright © 2024-2025 XMC工作室</div>
     </footer>
 
-    <script>
-        // 切换帮助文章
-        document.addEventListener('DOMContentLoaded', function() {
-            const links = document.querySelectorAll('.sidebar-link');
-            
-            links.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // 移除所有active类
-                    links.forEach(l => l.classList.remove('active'));
-                    document.querySelectorAll('.help-article').forEach(article => {
-                        article.classList.remove('active');
-                    });
-                    
-                    // 添加active类到当前点击的链接和对应文章
-                    this.classList.add('active');
-                    const targetId = this.getAttribute('href').substring(1);
-                    document.getElementById(targetId).classList.add('active');
-                    
-                    // 平滑滚动到顶部
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
+<script>
+    // 切换帮助文章并滚动到对应位置
+    document.addEventListener('DOMContentLoaded', function() {
+        const links = document.querySelectorAll('.sidebar-link');
+        
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 移除所有active类
+                links.forEach(l => l.classList.remove('active'));
+                document.querySelectorAll('.help-article').forEach(article => {
+                    article.classList.remove('active');
+                });
+                
+                // 添加active类到当前点击的链接和对应文章
+                this.classList.add('active');
+                const targetId = this.getAttribute('href').substring(1);
+                const targetArticle = document.getElementById(targetId);
+                targetArticle.classList.add('active');
+                
+                // 计算滚动位置（考虑固定导航栏的高度）
+                const headerHeight = document.querySelector('.navbar').offsetHeight;
+                const articlePosition = targetArticle.getBoundingClientRect().top;
+                const offsetPosition = articlePosition + window.pageYOffset - headerHeight;
+                
+                // 平滑滚动到目标位置
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
                 });
             });
         });
-    </script>
+        
+        // 页面加载时检查hash并滚动到对应位置
+        if(window.location.hash) {
+            const targetId = window.location.hash.substring(1);
+            const targetLink = document.querySelector(`.sidebar-link[href="#${targetId}"]`);
+            if(targetLink) {
+                targetLink.click();
+            }
+        }
+    });
+</script>
 </body>
-  </html>
+</html>
