@@ -27,61 +27,28 @@
             object-fit: cover;
         }
         
-        #scan-box {
+        /* 扫描线样式 */
+        #scan-line {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 70vmin;
-            height: 70vmin;
-            max-width: 300px;
-            max-height: 300px;
-            border: 2px solid white;
-            box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.6);
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, #00ff00, transparent);
+            box-shadow: 0 0 10px #00ff00;
             z-index: 10;
-            pointer-events: none;
+            animation: scan 2s linear infinite;
         }
         
-        .corner {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            border-color: #00ff00;
-            border-style: solid;
-            border-width: 0;
-        }
-        
-        #top-left {
-            top: -2px;
-            left: -2px;
-            border-top-width: 4px;
-            border-left-width: 4px;
-        }
-        
-        #top-right {
-            top: -2px;
-            right: -2px;
-            border-top-width: 4px;
-            border-right-width: 4px;
-        }
-        
-        #bottom-left {
-            bottom: -2px;
-            left: -2px;
-            border-bottom-width: 4px;
-            border-left-width: 4px;
-        }
-        
-        #bottom-right {
-            bottom: -2px;
-            right: -2px;
-            border-bottom-width: 4px;
-            border-right-width: 4px;
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
         }
         
         #instructions {
             position: absolute;
-            bottom: 15%;
+            bottom: 80px;
             left: 0;
             right: 0;
             text-align: center;
@@ -89,15 +56,16 @@
             font-size: 16px;
             text-shadow: 0 0 5px #000;
             z-index: 10;
+            padding: 0 20px;
         }
         
         #gallery-btn {
             position: absolute;
-            bottom: 5%;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #2196F3;
-            color: white;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
             border: none;
             padding: 12px 24px;
             border-radius: 24px;
@@ -105,18 +73,6 @@
             font-weight: bold;
             z-index: 10;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-        
-        #status-info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            z-index: 100;
         }
         
         #error-message {
@@ -133,35 +89,14 @@
             display: none;
             max-width: 80%;
         }
-        
-        #hint-message {
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-align: center;
-            z-index: 15;
-            display: none;
-        }
     </style>
 </head>
 <body>
     <div id="video-container">
         <video id="video" playsinline muted></video>
-        <div id="scan-box">
-            <div id="top-left" class="corner"></div>
-            <div id="top-right" class="corner"></div>
-            <div id="bottom-left" class="corner"></div>
-            <div id="bottom-right" class="corner"></div>
-        </div>
-        <div id="instructions">将二维码对准方框中央</div>
+        <div id="scan-line"></div>
+        <div id="instructions">将摄像头对准二维码识别</div>
         <div id="error-message"></div>
-        <div id="status-info">初始化中...</div>
-        <div id="hint-message">请保持手机稳定</div>
         <button id="gallery-btn">从相册选择</button>
         <input type="file" id="file-input" accept="image/*" style="display:none">
     </div>
@@ -169,130 +104,61 @@
     <script>
         const video = document.getElementById('video');
         const fileInput = document.getElementById('file-input');
-        const galleryBtn = document.getElementById('gallery-btn');
         const errorMessage = document.getElementById('error-message');
-        const statusInfo = document.getElementById('status-info');
-        const hintMessage = document.getElementById('hint-message');
-        const scanBox = document.getElementById('scan-box');
-        
-        if (typeof jsQR === 'undefined') {
-            showError("无法加载二维码扫描库，请刷新页面或检查网络");
-            throw new Error("jsQR库加载失败");
-        }
-        
-        const config = {
-            scanInterval: 500,       // 扫描间隔(ms)
-            minQRSize: 20,          // 最小识别像素尺寸
-            contrastThreshold: 20,  // 对比度阈值
-            inversionAttempts: 'attemptBoth', // 尝试正常和反色二维码
-            minConfidence: 0.3,     // 最低置信度
-            videoResolution: {      // 视频分辨率
-                width: { ideal: 720 },
-                height: { ideal: 480 }
-            },
-            hintDisplayTime: 2000   // 提示显示时间(ms)
-        };
         
         let isScanning = false;
         let stream = null;
         let scanTimer = null;
-        let hintTimer = null;
-        
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        
-        function updateStatus(message) {
-            statusInfo.textContent = message;
-            console.log(message);
-        }
-        
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-            updateStatus(`错误: ${message}`);
-        }
-        
-        function showHint(message) {
-            hintMessage.textContent = message;
-            hintMessage.style.display = 'block';
-            
-            if (hintTimer) clearTimeout(hintTimer);
-            hintTimer = setTimeout(() => {
-                hintMessage.style.display = 'none';
-            }, config.hintDisplayTime);
-        }
         
         function initCamera() {
-            updateStatus("正在初始化摄像头...");
-            
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 showError("您的浏览器不支持摄像头访问");
                 return;
             }
             
-            navigator.mediaDevices.getUserMedia({
-                video: {
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
                     facingMode: 'environment',
-                    ...config.videoResolution
-                }
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
             })
             .then(handleCameraSuccess)
             .catch(handleCameraError);
         }
         
         function handleCameraSuccess(mediaStream) {
-            updateStatus("摄像头已启动");
             stream = mediaStream;
             video.srcObject = stream;
             
             video.play()
                 .then(() => {
-                    updateStatus("视频播放中，开始扫描...");
-                    showHint("请将二维码对准方框");
                     startScanning();
                 })
                 .catch(err => {
-                    showError(`视频播放失败: ${err.message}`);
+                    showError("视频播放失败");
                 });
         }
         
         function handleCameraError(err) {
-            let errorMsg = "无法访问摄像头";
-            
-            if (err.name === 'NotAllowedError') {
-                errorMsg = "请允许摄像头权限";
-            } else if (err.name === 'NotFoundError') {
-                errorMsg = "未找到摄像头设备";
-            }
-            
-            showError(errorMsg);
-            updateStatus(`摄像头错误: ${err.name}`);
-            
-            document.addEventListener('click', () => {
-                errorMessage.style.display = 'none';
-                initCamera();
-            }, { once: true });
+            let msg = "无法访问摄像头";
+            if (err.name === 'NotAllowedError') msg = "请允许摄像头权限";
+            showError(msg);
         }
         
         function startScanning() {
             if (isScanning) return;
             isScanning = true;
-            updateStatus("开始扫描二维码...");
             
-            scanTimer = setInterval(() => {
-                if (video.readyState !== video.HAVE_ENOUGH_DATA) {
-                    return;
-                }
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            function scanFrame() {
+                if (!isScanning) return;
                 
-                const boxRect = scanBox.getBoundingClientRect();
-                canvas.width = boxRect.width;
-                canvas.height = boxRect.height;
-                
-                ctx.drawImage(
-                    video,
-                    boxRect.left, boxRect.top, boxRect.width, boxRect.height,
-                    0, 0, boxRect.width, boxRect.height
-                );
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 
@@ -302,36 +168,50 @@
                         imageData.width,
                         imageData.height,
                         {
-                            inversionAttempts: config.inversionAttempts,
-                            minConfidence: config.minConfidence
+                            inversionAttempts: 'attemptBoth', 
+                            minConfidence: 0.1, 
                         }
                     );
                     
-                    if (code && code.data) {
-                        updateStatus(`识别到二维码: ${code.data.substring(0, 30)}...`);
+                    if (code?.data) {
                         handleQRCodeDetected(code.data);
+                    } else {
+                        requestAnimationFrame(scanFrame);
                     }
                 } catch (e) {
-                    updateStatus(`解码错误: ${e.message}`);
+                    requestAnimationFrame(scanFrame);
                 }
-            }, config.scanInterval);
+            }
+            
+            scanFrame();
         }
         
         function handleQRCodeDetected(url) {
-            // 验证URL格式
             if (!isValidUrl(url)) {
-                updateStatus("无效的URL格式");
                 showError("无效的二维码内容");
+                startScanning(); // 继续扫描
                 return;
             }
             
             stopScanning();
-            updateStatus(`准备跳转到: ${url}`);
-            showHint("二维码识别成功！");
-            
             setTimeout(() => {
                 window.location.href = url;
-            }, 500);
+            }, 300);
+        }
+        
+        function stopScanning() {
+            isScanning = false;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 3000);
         }
         
         function isValidUrl(string) {
@@ -343,81 +223,48 @@
             }
         }
         
-        function stopScanning() {
-            isScanning = false;
-            if (scanTimer) {
-                clearInterval(scanTimer);
-            }
-            updateStatus("扫描已停止");
-            
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                updateStatus("摄像头已关闭");
-            }
-        }
-        
-        galleryBtn.addEventListener('click', () => {
-            updateStatus("打开相册选择");
+        document.getElementById('gallery-btn').addEventListener('click', () => {
             fileInput.click();
         });
         
-        fileInput.addEventListener('change', handleImageUpload);
-        
-        function handleImageUpload(e) {
+        fileInput.addEventListener('change', (e) => {
             if (!e.target.files.length) return;
             
-            updateStatus("正在处理图片...");
-            showHint("正在识别图片中的二维码");
             const file = e.target.files[0];
             const reader = new FileReader();
             
-            reader.onload = function(event) {
+            reader.onload = (event) => {
                 const img = new Image();
-                img.onload = function() {
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
                     canvas.width = img.width;
                     canvas.height = img.height;
                     ctx.drawImage(img, 0, 0);
                     
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    
-                    try {
-                        const code = jsQR(
-                            imageData.data,
-                            imageData.width,
-                            imageData.height,
-                            { 
-                                inversionAttempts: config.inversionAttempts,
-                                minConfidence: config.minConfidence
-                            }
-                        );
-                        
-                        if (code && code.data) {
-                            updateStatus(`从图片识别到二维码: ${code.data.substring(0, 30)}...`);
-                            handleQRCodeDetected(code.data);
-                        } else {
-                            showError("未检测到二维码");
-                            updateStatus("图片中未找到二维码");
-                            showHint("未识别到二维码");
+                    const code = jsQR(
+                        imageData.data,
+                        imageData.width,
+                        imageData.height,
+                        { 
+                            inversionAttempts: 'attemptBoth',
+                            minConfidence: 0.1
                         }
-                    } catch (e) {
-                        showError("解码失败");
-                        updateStatus(`图片解码错误: ${e.message}`);
+                    );
+                    
+                    if (code?.data) {
+                        handleQRCodeDetected(code.data);
+                    } else {
+                        showError('未检测到二维码');
                     }
                 };
-                
-                img.onerror = function() {
-                    showError("图片加载失败");
-                    updateStatus("图片加载错误");
-                };
-                
                 img.src = event.target.result;
             };
-            
             reader.readAsDataURL(file);
-        }
+        });
         
         window.addEventListener('DOMContentLoaded', initCamera);
-        
         window.addEventListener('beforeunload', stopScanning);
     </script>
 </body>
