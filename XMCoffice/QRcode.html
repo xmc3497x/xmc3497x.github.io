@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>二维码扫描</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            overflow: hidden;
+            touch-action: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        #video-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* 白色正方形扫描框 */
+        #scan-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70vmin;
+            height: 70vmin;
+            max-width: 300px;
+            max-height: 300px;
+            border: 2px solid white;
+            box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.7);
+            z-index: 10;
+        }
+        
+        /* 四个白色角标 */
+        .corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: white;
+            border-style: solid;
+            border-width: 0;
+        }
+        
+        #top-left {
+            top: 0;
+            left: 0;
+            border-top-width: 4px;
+            border-left-width: 4px;
+        }
+        
+        #top-right {
+            top: 0;
+            right: 0;
+            border-top-width: 4px;
+            border-right-width: 4px;
+        }
+        
+        #bottom-left {
+            bottom: 0;
+            left: 0;
+            border-bottom-width: 4px;
+            border-left-width: 4px;
+        }
+        
+        #bottom-right {
+            bottom: 0;
+            right: 0;
+            border-bottom-width: 4px;
+            border-right-width: 4px;
+        }
+        
+        #instructions {
+            position: absolute;
+            bottom: 15%;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 16px;
+            z-index: 10;
+        }
+        
+        #error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            text-align: center;
+            z-index: 20;
+            display: none;
+            max-width: 80%;
+        }
+        
+        #gallery-btn {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 500;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            z-index: 15;
+            display: none;
+        }
+        
+        #permission-hint {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            text-align: center;
+            z-index: 30;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="video-container">
+        <video id="video" playsinline muted></video>
+        
+        <div id="scan-box">
+            <div id="top-left" class="corner"></div>
+            <div id="top-right" class="corner"></div>
+            <div id="bottom-left" class="corner"></div>
+            <div id="bottom-right" class="corner"></div>
+        </div>
+        
+        <div id="instructions">将二维码放入框内自动扫描</div>
+        <div id="error-message">无法调用摄像头，请检查权限设置</div>
+        <div id="loading">正在处理...</div>
+        <div id="permission-hint">请点击屏幕允许使用摄像头</div>
+        
+        <input type="file" id="file-input" accept="image/*" style="display: none;">
+        <button id="gallery-btn">从相册选择</button>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const fileInput = document.getElementById('file-input');
+        const galleryBtn = document.getElementById('gallery-btn');
+        const errorMessage = document.getElementById('error-message');
+        const loading = document.getElementById('loading');
+        const scanBox = document.getElementById('scan-box');
+        const permissionHint = document.getElementById('permission-hint');
+        
+        let scanning = false;
+        let stream = null;
+        
+        function initCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showError("您的浏览器不支持摄像头访问");
+                return;
+            }
+            
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            }).then(function(s) {
+                stream = s;
+                video.srcObject = stream;
+                video.play().catch(err => {
+                    showError("视频播放失败");
+                });
+                startScanning();
+            }).catch(function(err) {
+                console.error('摄像头错误:', err);
+                if (err.name === 'NotAllowedError') {
+                    showPermissionHint();
+                } else {
+                    showError("无法访问摄像头");
+                }
+                document.addEventListener('click', handleUserInteraction, { once: true });
+            });
+        }
+        
+        function showPermissionHint() {
+            permissionHint.style.display = 'block';
+            document.addEventListener('click', handleUserInteraction, { once: true });
+        }
+        
+        function handleUserInteraction() {
+            permissionHint.style.display = 'none';
+            initCamera();
+        }
+        
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorMessage.style.display = 'block';
+        }
+        
+        function startScanning() {
+            if (scanning) return;
+            
+            const scanFrame = () => {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    const boxRect = scanBox.getBoundingClientRect();
+                    const canvas = document.createElement('canvas');
+                    canvas.width = boxRect.width;
+                    canvas.height = boxRect.height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    ctx.drawImage(
+                        video,
+                        boxRect.left, boxRect.top, boxRect.width, boxRect.height,
+                        0, 0, boxRect.width, boxRect.height
+                    );
+                    
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    
+                    if (code) {
+                        stopScanning();
+                        window.location.href = code.data;
+                    } else {
+                        requestAnimationFrame(scanFrame);
+                    }
+                } else {
+                    requestAnimationFrame(scanFrame);
+                }
+            };
+            
+            scanning = true;
+            scanFrame();
+        }
+        
+        function stopScanning() {
+            scanning = false;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+        
+        galleryBtn.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', (e) => {
+            if (!e.target.files.length) return;
+            
+            loading.style.display = 'block';
+            const reader = new FileReader();
+            
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    
+                    loading.style.display = 'none';
+                    
+                    if (code) {
+                        window.location.href = code.data;
+                    } else {
+                        alert('未检测到二维码');
+                    }
+                };
+                img.src = event.target.result;
+            };
+            
+            reader.readAsDataURL(e.target.files[0]);
+        });
+        
+        window.addEventListener('DOMContentLoaded', initCamera);
+        window.addEventListener('beforeunload', stopScanning);
+    </script>
+</body>
+</html>
