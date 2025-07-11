@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>二维码扫描</title>
+    <title>二维码扫描器</title>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
         body {
@@ -12,17 +12,21 @@
             background-color: #000;
             overflow: hidden;
             font-family: Arial, sans-serif;
+            touch-action: none;
         }
+        
         #video-container {
             position: relative;
             width: 100vw;
             height: 100vh;
         }
+        
         #video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+        
         #scan-box {
             position: absolute;
             top: 50%;
@@ -32,11 +36,12 @@
             height: 70vmin;
             max-width: 300px;
             max-height: 300px;
-            border: 3px solid rgba(255, 255, 255, 0.8);
+            border: 3px solid white;
             box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.7);
             z-index: 10;
             pointer-events: none;
         }
+        
         .corner {
             position: absolute;
             width: 30px;
@@ -45,30 +50,35 @@
             border-style: solid;
             border-width: 0;
         }
+        
         #top-left {
             top: -3px;
             left: -3px;
             border-top-width: 5px;
             border-left-width: 5px;
         }
+        
         #top-right {
             top: -3px;
             right: -3px;
             border-top-width: 5px;
             border-right-width: 5px;
         }
+        
         #bottom-left {
             bottom: -3px;
             left: -3px;
             border-bottom-width: 5px;
             border-left-width: 5px;
         }
+        
         #bottom-right {
             bottom: -3px;
             right: -3px;
             border-bottom-width: 5px;
             border-right-width: 5px;
         }
+        
         #instructions {
             position: absolute;
             bottom: 15%;
@@ -80,6 +90,7 @@
             text-shadow: 0 0 5px #000;
             z-index: 10;
         }
+        
         #gallery-btn {
             position: absolute;
             bottom: 5%;
@@ -95,6 +106,33 @@
             z-index: 10;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
+        
+        #debug-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 100;
+        }
+        
+        #error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            text-align: center;
+            z-index: 20;
+            display: none;
+            max-width: 80%;
+        }
     </style>
 </head>
 <body>
@@ -107,158 +145,226 @@
             <div id="bottom-right" class="corner"></div>
         </div>
         <div id="instructions">将二维码对准方框中央</div>
+        <div id="error-message"></div>
+        <div id="debug-info">状态: 初始化中...</div>
         <button id="gallery-btn">从相册选择</button>
         <input type="file" id="file-input" accept="image/*" style="display:none">
     </div>
 
     <script>
-        const config = {
-            scanInterval: 300,    // 扫描间隔(ms)
-            minQRSize: 50,       // 最小识别像素尺寸
-            contrastThreshold: 30 // 对比度阈值
-        };
-
         const video = document.getElementById('video');
         const fileInput = document.getElementById('file-input');
         const galleryBtn = document.getElementById('gallery-btn');
-
+        const errorMessage = document.getElementById('error-message');
+        const debugInfo = document.getElementById('debug-info');
+        const scanBox = document.getElementById('scan-box');
+        
         let isScanning = false;
         let stream = null;
-        let scanTimer = null;
+        let scanInterval = null;
+        
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
+        
+        function debugLog(message) {
+            debugInfo.textContent = `调试: ${message}`;
+            console.log(message);
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            debugLog(`错误: ${message}`);
+        }
+        
         function initCamera() {
-            if (!navigator.mediaDevices?.getUserMedia) {
-                alert("您的浏览器不支持摄像头访问");
+            debugLog("正在初始化摄像头...");
+            
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showError("您的浏览器不支持摄像头访问");
                 return;
             }
-
+            
             const constraints = {
                 video: {
                     facingMode: 'environment',
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 }
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
                 }
             };
-
+            
             navigator.mediaDevices.getUserMedia(constraints)
-                .then(stream => {
-                    video.srcObject = stream;
-                    video.play()
-                        .then(() => startScanning())
-                        .catch(e => alert("视频播放失败：" + e.message));
+                .then(handleCameraSuccess)
+                .catch(handleCameraError);
+        }
+        
+        function handleCameraSuccess(mediaStream) {
+            debugLog("摄像头已启动");
+            stream = mediaStream;
+            video.srcObject = stream;
+            
+            video.play()
+                .then(() => {
+                    debugLog("视频播放中");
+                    startScanning();
                 })
                 .catch(err => {
-                    alert(`摄像头错误: ${err.name === 'NotAllowedError' ? '请允许摄像头权限' : '设备不可用'}`);
+                    showError(`视频播放失败: ${err.message}`);
                 });
+        }
+        
+        function handleCameraError(err) {
+            let errorMessage = "无法访问摄像头";
+            
+            if (err.name === 'NotAllowedError') {
+                errorMessage = "请允许摄像头权限";
+            } else if (err.name === 'NotFoundError') {
+                errorMessage = "未找到摄像头设备";
+            }
+            
+            showError(errorMessage);
+            debugLog(`摄像头错误: ${err.name} - ${err.message}`);
+            
+            document.addEventListener('click', () => {
+                errorMessage.style.display = 'none';
+                initCamera();
+            }, { once: true });
         }
         
         function startScanning() {
             if (isScanning) return;
             isScanning = true;
+            debugLog("开始扫描二维码...");
             
-            const checkReady = () => {
-                if (video.readyState >= video.HAVE_ENOUGH_DATA) {
-                    scanTimer = setInterval(scanQRCode, config.scanInterval);
-                } else {
-                    setTimeout(checkReady, 100);
+            scanInterval = setInterval(() => {
+                if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+                    return;
                 }
-            };
-            checkReady();
-        }
-
-        function scanQRCode() {
-            const box = document.getElementById('scan-box');
-            const rect = box.getBoundingClientRect();
-            
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-            
-            ctx.drawImage(
-                video,
-                rect.left, rect.top, rect.width, rect.height,
-                0, 0, rect.width, rect.height
-            );
-
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            enhanceContrast(imageData.data, config.contrastThreshold);
-            
-            try {
-                const code = jsQR(
-                    imageData.data,
-                    imageData.width,
-                    imageData.height,
-                    {
-                        inversionAttempts: 'attemptBoth',
-                        minConfidence: 0.4
-                    }
+                
+                const boxRect = scanBox.getBoundingClientRect();
+                canvas.width = boxRect.width;
+                canvas.height = boxRect.height;
+                
+                ctx.drawImage(
+                    video,
+                    boxRect.left, boxRect.top, boxRect.width, boxRect.height,
+                    0, 0, boxRect.width, boxRect.height
                 );
                 
-                if (code && code.data && code.binaryData.length > config.minQRSize) {
-                    stopScanning();
-                    window.location.href = code.data;
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                
+                try {
+                    const code = jsQR(
+                        imageData.data,
+                        imageData.width,
+                        imageData.height,
+                        {
+                            inversionAttempts: 'attemptBoth',
+                            minConfidence: 0.4
+                        }
+                    );
+                    
+                    if (code && code.data) {
+                        debugLog(`识别到二维码: ${code.data.substring(0, 30)}...`);
+                        handleQRCodeDetected(code.data);
+                    }
+                } catch (e) {
+                    debugLog(`解码错误: ${e.message}`);
                 }
-            } catch (e) {
-                console.warn("解码错误:", e);
+            }, 300); 
+        }
+        
+        function handleQRCodeDetected(url) {
+            if (!isValidUrl(url)) {
+                debugLog("无效的URL格式");
+                return;
+            }
+            
+            stopScanning();
+            debugLog(`准备跳转到: ${url}`);
+            
+            setTimeout(() => {
+                window.location.href = url;
+            }, 500);
+        }
+        
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
             }
         }
-      
-        function enhanceContrast(pixels, threshold) {
-            for (let i = 0; i < pixels.length; i += 4) {
-                const r = pixels[i];
-                const g = pixels[i + 1];
-                const b = pixels[i + 2];
-                const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-                pixels[i] = pixels[i + 1] = pixels[i + 2] = gray > threshold ? 255 : 0;
-            }
-        }
-
+        
         function stopScanning() {
             isScanning = false;
-            clearInterval(scanTimer);
+            clearInterval(scanInterval);
+            debugLog("扫描已停止");
+            
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
+                debugLog("摄像头已关闭");
             }
         }
-
-        galleryBtn.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', processImage);
-
-        function processImage(e) {
+        
+        galleryBtn.addEventListener('click', () => {
+            debugLog("打开相册选择");
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', handleImageUpload);
+        
+        function handleImageUpload(e) {
+            if (!e.target.files.length) return;
+            
+            debugLog("正在处理图片...");
             const file = e.target.files[0];
-            if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = event => {
+            
+            reader.onload = function(event) {
                 const img = new Image();
-                img.onload = () => {
+                img.onload = function() {
                     canvas.width = img.width;
                     canvas.height = img.height;
                     ctx.drawImage(img, 0, 0);
                     
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    enhanceContrast(imageData.data, config.contrastThreshold);
                     
-                    const code = jsQR(
-                        imageData.data,
-                        imageData.width,
-                        imageData.height,
-                        { inversionAttempts: 'attemptBoth' }
-                    );
-                    
-                    if (code?.data) {
-                        window.location.href = code.data;
-                    } else {
-                        alert("未检测到有效二维码");
+                    try {
+                        const code = jsQR(
+                            imageData.data,
+                            imageData.width,
+                            imageData.height,
+                            { inversionAttempts: 'attemptBoth' }
+                        );
+                        
+                        if (code && code.data) {
+                            debugLog(`从图片识别到二维码: ${code.data.substring(0, 30)}...`);
+                            handleQRCodeDetected(code.data);
+                        } else {
+                            showError("未检测到二维码");
+                            debugLog("图片中未找到二维码");
+                        }
+                    } catch (e) {
+                        showError("解码失败");
+                        debugLog(`图片解码错误: ${e.message}`);
                     }
                 };
+                
+                img.onerror = function() {
+                    showError("图片加载失败");
+                    debugLog("图片加载错误");
+                };
+                
                 img.src = event.target.result;
             };
+            
             reader.readAsDataURL(file);
         }
-
+        
         window.addEventListener('DOMContentLoaded', initCamera);
+        
         window.addEventListener('beforeunload', stopScanning);
     </script>
 </body>
