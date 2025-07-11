@@ -30,43 +30,44 @@
             transform: translate(-50%, -50%);
             width: 70vmin;
             height: 70vmin;
-            max-width: 280px;
-            max-height: 280px;
-            border: 2px solid white;
-            box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.6);
+            max-width: 300px;
+            max-height: 300px;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.7);
             z-index: 10;
+            pointer-events: none;
         }
         .corner {
             position: absolute;
-            width: 24px;
-            height: 24px;
-            border-color: white;
+            width: 30px;
+            height: 30px;
+            border-color: #00ff00;
             border-style: solid;
             border-width: 0;
         }
         #top-left {
-            top: -2px;
-            left: -2px;
-            border-top-width: 4px;
-            border-left-width: 4px;
+            top: -3px;
+            left: -3px;
+            border-top-width: 5px;
+            border-left-width: 5px;
         }
         #top-right {
-            top: -2px;
-            right: -2px;
-            border-top-width: 4px;
-            border-right-width: 4px;
+            top: -3px;
+            right: -3px;
+            border-top-width: 5px;
+            border-right-width: 5px;
         }
         #bottom-left {
-            bottom: -2px;
-            left: -2px;
-            border-bottom-width: 4px;
-            border-left-width: 4px;
+            bottom: -3px;
+            left: -3px;
+            border-bottom-width: 5px;
+            border-left-width: 5px;
         }
         #bottom-right {
-            bottom: -2px;
-            right: -2px;
-            border-bottom-width: 4px;
-            border-right-width: 4px;
+            bottom: -3px;
+            right: -3px;
+            border-bottom-width: 5px;
+            border-right-width: 5px;
         }
         #instructions {
             position: absolute;
@@ -76,47 +77,23 @@
             text-align: center;
             color: white;
             font-size: 16px;
+            text-shadow: 0 0 5px #000;
             z-index: 10;
-        }
-        #error-message {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(255, 0, 0, 0.8);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 5px;
-            text-align: center;
-            z-index: 20;
-            display: none;
         }
         #gallery-btn {
             position: absolute;
             bottom: 5%;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(255, 255, 255, 0.9);
-            color: #333;
+            background-color: #2196F3;
+            color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 24px;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: bold;
             z-index: 10;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        #loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 5px;
-            z-index: 15;
-            display: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
@@ -129,136 +106,157 @@
             <div id="bottom-left" class="corner"></div>
             <div id="bottom-right" class="corner"></div>
         </div>
-        <div id="instructions">将二维码放入框内自动扫描</div>
-        <div id="error-message"></div>
-        <div id="loading">正在处理...</div>
-        <input type="file" id="file-input" accept="image/*" style="display: none;">
+        <div id="instructions">将二维码对准方框中央</div>
         <button id="gallery-btn">从相册选择</button>
+        <input type="file" id="file-input" accept="image/*" style="display:none">
     </div>
 
     <script>
+        const config = {
+            scanInterval: 300,    // 扫描间隔(ms)
+            minQRSize: 50,       // 最小识别像素尺寸
+            contrastThreshold: 30 // 对比度阈值
+        };
+
         const video = document.getElementById('video');
         const fileInput = document.getElementById('file-input');
         const galleryBtn = document.getElementById('gallery-btn');
-        const errorMessage = document.getElementById('error-message');
-        const loading = document.getElementById('loading');
-        const scanBox = document.getElementById('scan-box');
-        
-        let scanning = false;
+
+        let isScanning = false;
         let stream = null;
-        let scanInterval = null;
+        let scanTimer = null;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
         function initCamera() {
             if (!navigator.mediaDevices?.getUserMedia) {
-                showError("您的浏览器不支持摄像头访问");
+                alert("您的浏览器不支持摄像头访问");
                 return;
             }
 
-            navigator.mediaDevices.getUserMedia({ 
-                video: { 
+            const constraints = {
+                video: {
                     facingMode: 'environment',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                } 
-            }).then(handleSuccess).catch(handleError);
-        }
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                }
+            };
 
-        function handleSuccess(stream) {
-            video.srcObject = stream;
-            video.play()
-                .then(() => startScanning())
-                .catch(err => showError("视频播放失败: " + err.message));
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(stream => {
+                    video.srcObject = stream;
+                    video.play()
+                        .then(() => startScanning())
+                        .catch(e => alert("视频播放失败：" + e.message));
+                })
+                .catch(err => {
+                    alert(`摄像头错误: ${err.name === 'NotAllowedError' ? '请允许摄像头权限' : '设备不可用'}`);
+                });
         }
-
-        function handleError(err) {
-            console.error('摄像头错误:', err);
-            let msg = "无法访问摄像头";
-            if (err.name === 'NotAllowedError') msg = "请允许摄像头权限";
-            else if (err.name === 'NotFoundError') msg = "未找到摄像头设备";
-            showError(msg);
-            
-            document.addEventListener('click', () => {
-                errorMessage.style.display = 'none';
-                initCamera();
-            }, { once: true });
-        }
-
+        
         function startScanning() {
-            if (scanning) return;
-            scanning = true;
+            if (isScanning) return;
+            isScanning = true;
             
-            scanInterval = setInterval(() => {
-                if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
-                
-                const boxRect = scanBox.getBoundingClientRect();
-                const canvas = document.createElement('canvas');
-                canvas.width = boxRect.width;
-                canvas.height = boxRect.height;
-                const ctx = canvas.getContext('2d');
-                
-                ctx.drawImage(
-                    video,
-                    boxRect.left, boxRect.top, boxRect.width, boxRect.height,
-                    0, 0, boxRect.width, boxRect.height
+            const checkReady = () => {
+                if (video.readyState >= video.HAVE_ENOUGH_DATA) {
+                    scanTimer = setInterval(scanQRCode, config.scanInterval);
+                } else {
+                    setTimeout(checkReady, 100);
+                }
+            };
+            checkReady();
+        }
+
+        function scanQRCode() {
+            const box = document.getElementById('scan-box');
+            const rect = box.getBoundingClientRect();
+            
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            ctx.drawImage(
+                video,
+                rect.left, rect.top, rect.width, rect.height,
+                0, 0, rect.width, rect.height
+            );
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            enhanceContrast(imageData.data, config.contrastThreshold);
+            
+            try {
+                const code = jsQR(
+                    imageData.data,
+                    imageData.width,
+                    imageData.height,
+                    {
+                        inversionAttempts: 'attemptBoth',
+                        minConfidence: 0.4
+                    }
                 );
                 
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                try {
-                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                        inversionAttempts: 'dontInvert',
-                    });
-                    if (code?.data) {
-                        stopScanning();
-                        window.location.href = code.data; 
-                    }
-                } catch (e) {
-                    console.warn("QR解码错误:", e);
+                if (code && code.data && code.binaryData.length > config.minQRSize) {
+                    stopScanning();
+                    window.location.href = code.data;
                 }
-            }, 200);
+            } catch (e) {
+                console.warn("解码错误:", e);
+            }
+        }
+      
+        function enhanceContrast(pixels, threshold) {
+            for (let i = 0; i < pixels.length; i += 4) {
+                const r = pixels[i];
+                const g = pixels[i + 1];
+                const b = pixels[i + 2];
+                const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                pixels[i] = pixels[i + 1] = pixels[i + 2] = gray > threshold ? 255 : 0;
+            }
         }
 
         function stopScanning() {
-            scanning = false;
-            clearInterval(scanInterval);
+            isScanning = false;
+            clearInterval(scanTimer);
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
             }
         }
 
-        function showError(msg) {
-            errorMessage.textContent = msg;
-            errorMessage.style.display = 'block';
-        }
-
         galleryBtn.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            if (!e.target.files.length) return;
-            
-            loading.style.display = 'block';
+        fileInput.addEventListener('change', processImage);
+
+        function processImage(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = event => {
                 const img = new Image();
                 img.onload = () => {
-                    const canvas = document.createElement('canvas');
                     canvas.width = img.width;
                     canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
                     
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    enhanceContrast(imageData.data, config.contrastThreshold);
                     
-                    loading.style.display = 'none';
+                    const code = jsQR(
+                        imageData.data,
+                        imageData.width,
+                        imageData.height,
+                        { inversionAttempts: 'attemptBoth' }
+                    );
+                    
                     if (code?.data) {
                         window.location.href = code.data;
                     } else {
-                        alert('未检测到二维码');
+                        alert("未检测到有效二维码");
                     }
                 };
                 img.src = event.target.result;
             };
-            reader.readAsDataURL(e.target.files[0]);
-        });
+            reader.readAsDataURL(file);
+        }
 
         window.addEventListener('DOMContentLoaded', initCamera);
         window.addEventListener('beforeunload', stopScanning);
