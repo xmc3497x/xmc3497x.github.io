@@ -12,12 +12,10 @@
             box-sizing: border-box;
             font-family: 'Microsoft YaHei', sans-serif;
         }
-        
         body {
-            overflow: hidden; /* 禁止页面滚动 */
+            overflow: hidden;
             height: 100vh;
         }
-        
         /* 封面样式 */
         .cover {
             position: relative;
@@ -29,7 +27,6 @@
             align-items: center;
             overflow: hidden;
         }
-        
         .bg-image {
             position: absolute;
             top: 0;
@@ -38,7 +35,6 @@
             height: 100%;
             z-index: -2;
         }
-        
         .bg-image img {
             width: 100%;
             height: 100%;
@@ -46,7 +42,6 @@
             filter: blur(8px);
             transform: scale(1.1);
         }
-        
         .overlay {
             position: absolute;
             top: 0;
@@ -56,7 +51,6 @@
             background-color: rgba(0, 0, 0, 0.5);
             z-index: -1;
         }
-        
         .logo {
             width: 100px;
             height: 100px;
@@ -64,7 +58,6 @@
             opacity: 0;
             animation: fadeInUp 1s ease-out 0.5s forwards;
         }
-        
         .title {
             color: white;
             font-size: 3rem;
@@ -75,7 +68,6 @@
             animation: fadeInUp 1.5s ease-out forwards;
             text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
-        
         .subtitle {
             color: rgba(255, 255, 255, 0.9);
             font-size: 1.2rem;
@@ -87,14 +79,12 @@
             max-width: 80%;
             margin-bottom: 30px;
         }
-        
         @keyframes fadeInUp {
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
         /* 按钮区域样式 */
         .button-section {
             position: relative;
@@ -103,7 +93,6 @@
             flex-direction: column;
             align-items: center;
         }
-        
         .button-row {
             display: flex;
             justify-content: center;
@@ -111,7 +100,6 @@
             margin-bottom: 15px;
             flex-wrap: wrap;
         }
-        
         .btn {
             display: inline-block;
             padding: 10px 25px;
@@ -126,21 +114,30 @@
             backdrop-filter: blur(5px);
             opacity: 0;
             transform: translateY(20px);
-            animation: fadeInUp 1s ease-out 1s forwards;
+            animation: fadeInUp 1s ease-out forwards;
+            animation-fill-mode: forwards;
             margin-bottom: 10px;
         }
-        
         .btn:hover {
             background-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-        
-        .btn:nth-child(1) { animation-delay: 1s; }
-        .btn:nth-child(2) { animation-delay: 1.2s; }
-        .btn:nth-child(3) { animation-delay: 1.4s; }
-        .btn:nth-child(4) { animation-delay: 1.6s; }
-
+        .btn:nth-child(1) {
+            animation-delay: 1s;
+        }
+        .btn:nth-child(2) {
+            animation-delay: 1.2s;
+        }
+        .btn:nth-child(3) {
+            animation-delay: 1.4s;
+        }
+        .btn:nth-child(4) {
+            animation-delay: 1.6s;
+        }
+        .btn:nth-child(5) {
+            animation-delay: 1.8s;
+        }
         /* 响应式设计 - 电脑端/横屏 */
         @media (min-width: 768px), (orientation: landscape) {
             .button-section {
@@ -148,13 +145,11 @@
                 justify-content: center;
                 flex-wrap: wrap;
             }
-            
             .button-row {
                 flex-direction: row;
                 margin-bottom: 0;
                 width: auto;
             }
-            
             .btn {
                 margin: 0 10px;
                 margin-bottom: 0;
@@ -169,20 +164,13 @@
             <img src="https://bing.img.run/1920x1080.php" alt="Bing每日壁纸1080P高清" />
         </div>
         <div class="overlay"></div>
-        
         <!-- 添加的logo -->
         <img src="https://www.now61.cn/f/BxzXfp/icon.png" alt="XMC工作室logo" class="logo">
-        
         <h1 class="title">XMC工作室</h1>
         <p class="subtitle">专业高效的HTML设计工作室</p>
-        
-        <!-- 按钮区域 - 修改后的结构 -->
-        <div class="button-section">
-            <a href="XMCoffice/Download.html" class="btn">产品下载</a>
-            <a href="XMCoffice/call.html" class="btn">联系我们</a>
-            <a href="https://shop.xiaoman.top//links/22C1816E" class="btn">进入商店</a>
-            <a href="XMCoffice/helps.html" class="btn">帮助中心</a>
-            <a href="XMCoffice/url.html" class="btn">友情链接</a>
+        <!-- 按钮区域 -->
+        <div class="button-section" id="buttonContainer">
+            <!-- 按钮将通过JavaScript动态生成 -->
         </div>
     </section>
 
@@ -190,38 +178,120 @@
         // 禁止滚动
         document.body.style.overflow = 'hidden';
         
-        // 动态调整按钮布局
-        function adjustButtonLayout() {
-            const buttonSection = document.querySelector('.button-section');
+        // 按钮数据
+        const buttons = [
+            {href: "XMCoffice/Download.html", text: "产品下载"},
+            {href: "XMCoffice/call.html", text: "联系我们"},
+            {href: "https://shop.xiaoman.top//links/22C1816E", text: "进入商店"},
+            {href: "XMCoffice/helps.html", text: "帮助中心"},
+            {href: "XMCoffice/url.html", text: "友情链接"}
+            // 可以继续添加更多按钮
+        ];
+        
+        // 动画是否已经播放的标志
+        let hasAnimated = false;
+        
+        // 创建按钮元素
+        function createButtons() {
+            const buttonContainer = document.getElementById('buttonContainer');
             const isDesktop = window.innerWidth >= 768 || window.matchMedia("(orientation: landscape)").matches;
             
             if (isDesktop) {
                 // 电脑端/横屏 - 所有按钮在一行
-                buttonSection.innerHTML = `
-                    <a href="XMCoffice/Download.html" class="btn">产品下载</a>
-                    <a href="XMCoffice/call.html" class="btn">联系我们</a>
-                    <a href="https://shop.xiaoman.top//links/22C1816E" class="btn">进入商店</a>
-                    <a href="XMCoffice/helps.html" class="btn">帮助中心</a>
-                `;
+                buttonContainer.innerHTML = buttons.map((btn, index) => 
+                    `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + index*0.2}s">${btn.text}</a>`
+                ).join('');
             } else {
-                // 移动端竖屏 - 两行按钮
-                buttonSection.innerHTML = `
+                // 移动端竖屏 - 分成两行
+                const half = Math.ceil(buttons.length / 2);
+                const firstRow = buttons.slice(0, half);
+                const secondRow = buttons.slice(half);
+                
+                buttonContainer.innerHTML = `
                     <div class="button-row">
-                        <a href="XMCoffice/Download.html" class="btn">产品下载</a>
-                        <a href="XMCoffice/call.html" class="btn">联系我们</a>
+                        ${firstRow.map((btn, index) => 
+                            `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + index*0.2}s">${btn.text}</a>`
+                        ).join('')}
                     </div>
                     <div class="button-row">
-                        <a href="https://shop.xiaoman.top//links/22C1816E" class="btn">进入商店</a>
-                        <a href="XMCoffice/helps.html" class="btn">帮助中心</a>
+                        ${secondRow.map((btn, index) => 
+                            `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + (index + half)*0.2}s">${btn.text}</a>`
+                        ).join('')}
                     </div>
                 `;
             }
+            
+            // 标记动画已经播放
+            hasAnimated = true;
         }
         
-        // 初始加载和窗口大小变化时调整布局
-        window.addEventListener('load', adjustButtonLayout);
-        window.addEventListener('resize', adjustButtonLayout);
-        window.addEventListener('orientationchange', adjustButtonLayout);
+        // 调整布局但不重新创建元素（避免动画重播）
+        function adjustLayout() {
+            const buttonContainer = document.getElementById('buttonContainer');
+            const isDesktop = window.innerWidth >= 768 || window.matchMedia("(orientation: landscape)").matches;
+            
+            if (isDesktop) {
+                buttonContainer.style.flexDirection = 'row';
+                buttonContainer.style.flexWrap = 'wrap';
+                buttonContainer.style.justifyContent = 'center';
+                // 将所有按钮直接显示，不需要重新创建
+                const buttonRows = buttonContainer.querySelectorAll('.button-row');
+                if (buttonRows.length > 0) {
+                    buttonRows.forEach(row => {
+                        const buttons = row.querySelectorAll('.btn');
+                        buttons.forEach(btn => {
+                            buttonContainer.appendChild(btn);
+                        });
+                        row.remove();
+                    });
+                }
+            } else {
+                buttonContainer.style.flexDirection = 'column';
+                // 如果已经有.button-row，则不需要重新创建
+                if (buttonContainer.querySelector('.button-row') === null) {
+                    const allButtons = buttonContainer.querySelectorAll('.btn');
+                    if (allButtons.length > 0) {
+                        const half = Math.ceil(allButtons.length / 2);
+                        const firstRow = document.createElement('div');
+                        firstRow.className = 'button-row';
+                        const secondRow = document.createElement('div');
+                        secondRow.className = 'button-row';
+                        
+                        for (let i = 0; i < allButtons.length; i++) {
+                            if (i < half) {
+                                firstRow.appendChild(allButtons[i]);
+                            } else {
+                                secondRow.appendChild(allButtons[i]);
+                            }
+                        }
+                        
+                        buttonContainer.innerHTML = '';
+                        buttonContainer.appendChild(firstRow);
+                        buttonContainer.appendChild(secondRow);
+                    }
+                }
+            }
+        }
+        
+        // 初始加载
+        window.addEventListener('load', () => {
+            createButtons();
+            
+            // 添加防抖的resize事件处理
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    adjustLayout();
+                }, 100);
+            });
+            
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    adjustLayout();
+                }, 100);
+            });
+        });
     </script>
 </body>
 </html>
