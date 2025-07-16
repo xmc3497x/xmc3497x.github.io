@@ -16,6 +16,31 @@
             overflow: hidden;
             height: 100vh;
         }
+        /* 加载动画样式 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            transition: opacity 0.5s ease;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
         /* 封面样式 */
         .cover {
             position: relative;
@@ -158,16 +183,24 @@
     </style>
 </head>
 <body>
+    <!-- 加载动画 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
     <!-- 封面部分 -->
     <section class="cover">
         <div class="bg-image">
             <img src="https://bing.img.run/1920x1080.php" alt="Bing每日壁纸1080P高清" />
         </div>
         <div class="overlay"></div>
+        
         <!-- 添加的logo -->
-        <img src="https://www.now61.cn/f/BxzXfp/icon.png" alt="XMC工作室logo" class="logo">
+        <img src="https://www.now61.cn/f/BxzXfp/icon.png" alt="XMC工作室logo" class="logo" id="logoImage">
+        
         <h1 class="title">XMC工作室</h1>
         <p class="subtitle">专业高效的HTML设计工作室</p>
+        
         <!-- 按钮区域 -->
         <div class="button-section" id="buttonContainer">
             <!-- 按钮将通过JavaScript动态生成 -->
@@ -198,7 +231,7 @@
             
             if (isDesktop) {
                 // 电脑端/横屏 - 所有按钮在一行
-                buttonContainer.innerHTML = buttons.map((btn, index) => 
+                buttonContainer.innerHTML = buttons.map((btn, index) =>
                     `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + index*0.2}s">${btn.text}</a>`
                 ).join('');
             } else {
@@ -209,12 +242,12 @@
                 
                 buttonContainer.innerHTML = `
                     <div class="button-row">
-                        ${firstRow.map((btn, index) => 
+                        ${firstRow.map((btn, index) =>
                             `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + index*0.2}s">${btn.text}</a>`
                         ).join('')}
                     </div>
                     <div class="button-row">
-                        ${secondRow.map((btn, index) => 
+                        ${secondRow.map((btn, index) =>
                             `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + (index + half)*0.2}s">${btn.text}</a>`
                         ).join('')}
                     </div>
@@ -234,6 +267,7 @@
                 buttonContainer.style.flexDirection = 'row';
                 buttonContainer.style.flexWrap = 'wrap';
                 buttonContainer.style.justifyContent = 'center';
+                
                 // 将所有按钮直接显示，不需要重新创建
                 const buttonRows = buttonContainer.querySelectorAll('.button-row');
                 if (buttonRows.length > 0) {
@@ -247,6 +281,7 @@
                 }
             } else {
                 buttonContainer.style.flexDirection = 'column';
+                
                 // 如果已经有.button-row，则不需要重新创建
                 if (buttonContainer.querySelector('.button-row') === null) {
                     const allButtons = buttonContainer.querySelectorAll('.btn');
@@ -273,9 +308,51 @@
             }
         }
         
+        // 检查Logo是否加载完成
+        function checkLogoLoaded() {
+            const logoImage = document.getElementById('logoImage');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            // 如果Logo已经完成加载
+            if (logoImage.complete && logoImage.naturalWidth !== 0) {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500); // 等待淡出动画完成
+                return;
+            }
+            
+            // 添加加载完成和加载错误的监听器
+            logoImage.onload = function() {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500);
+            };
+            
+            logoImage.onerror = function() {
+                // 如果Logo加载失败，也隐藏加载动画
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500);
+            };
+            
+            // 设置超时，如果5秒后仍未加载完成，也隐藏加载动画
+            setTimeout(() => {
+                if (loadingOverlay.style.display !== 'none') {
+                    loadingOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingOverlay.style.display = 'none';
+                    }, 500);
+                }
+            }, 5000);
+        }
+        
         // 初始加载
         window.addEventListener('load', () => {
             createButtons();
+            checkLogoLoaded();
             
             // 添加防抖的resize事件处理
             let resizeTimer;
