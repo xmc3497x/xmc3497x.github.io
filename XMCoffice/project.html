@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XMC工作室 - 项目链接</title>
+    <link rel="icon" href="https://www.now61.cn/f/Bxg7ip/icon-compressed.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1e88e5;
+            --primary-hover: #1565c0;
+            --secondary-color: #ff6f00;
+            --text-color: #333;
+            --text-light: #666;
+            --bg-color: #f5f7fa;
+            --white: #ffffff;
+            --header-height: 70px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            overflow-x: hidden;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            line-height: 1.6;
+            max-width: 2560px;
+            margin: 0 auto;
+        }
+        
+        /* 微信式公告栏 */
+        .wechat-notice {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            background-color: #fef6e6;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            z-index: 99;
+            border-bottom: 1px solid #f0e0c5;
+        }
+        
+        .notice-icon {
+            margin-right: 10px;
+            font-size: 16px;
+            color: #f85f48;
+            flex-shrink: 0;
+        }
+        
+        .notice-content {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        
+        .notice-text {
+            color: #e65100;
+            font-size: 14px;
+            line-height: 1.5;
+            display: inline-block;
+        }
+        
+        /* 导航栏 */
+        .navbar {
+            background: linear-gradient(135deg, #1e88e5, #0d47a1);
+            height: var(--header-height);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--white);
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+        }
+      
+        .logo i{
+            margin-right: 10px;
+            color: var(--secondary-color);
+            font-size: 1.8rem;
+        }
+      
+        .logo-img {
+            height: 40px; 
+            width: auto; 
+            margin-right: 10px; 
+            vertical-align: middle; 
+        }
+        
+
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        
+        /* 搜索框 */
+        .search-box {
+            flex-grow: 1;
+            max-width: 400px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: none;
+            border-radius: 20px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .search-input:focus {
+            background: var(--white);
+            box-shadow: 0 0 5px rgba(30, 136, 229, 0.3);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+        }
+        
+        .user-actions {
+            margin-left: 30px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .user-actions a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        
+        .user-actions a:hover {
+            color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        /* 主内容区 */
+        .container {
+            padding-top: calc(var(--header-height) + 40px);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 50px;
+            width: 100%;
+        }
+        
+        /* 产品分类标题 */
+        .category-title {
+            font-size: 1.8rem;
+            margin: 40px 0 20px;
+            padding-left: 20px;
+            border-left: 4px solid var(--primary-color);
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .category-title i {
+            color: var(--secondary-color);
+        }
+        
+        /* 产品卡片容器 */
+        .products-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+        
+        /* 产品卡片 */
+        .product-card {
+            background-color: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .product-image {
+            position: relative;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            overflow: hidden;
+            background: #f0f0f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23ccc"><rect width="80" height="80" x="10" y="10"/></svg>') no-repeat center;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .product-image.loaded img {
+            opacity: 1;
+        }
+        
+        .loading-spinner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .product-info {
+            padding: 25px;
+        }
+        
+        .product-name {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+        
+        .product-desc {
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .product-status {
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .status-active {
+            color: #4CAF50;
+        }
+        
+        .status-slow {
+            color: #FF9800;
+        }
+        
+        .status-stopped {
+            color: #F44336;
+        }
+        
+        .download-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 15px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+            gap: 8px;
+            min-width: 120px;
+        }
+        
+        .download-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 136, 229, 0.3);
+        }
+        
+        .download-btn i {
+            font-size: 1rem;
+        }
+        
+        .download-btn.secondary {
+            background-color: #666;
+        }
+        
+        .download-btn.secondary:hover {
+            background-color: #555;
+        }
+        
+        /* 页脚 */
+        footer {
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            color: #eee;
+            padding: 40px 5% 30px;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .footer-link {
+            color: #eee;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-link:hover {
+            color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .copyright {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .search-box {
+                max-width: 300px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .search-box {
+                display: none;
+            }
+            
+            .user-actions {
+                margin-left: auto;
+            }
+            
+            .container {
+                padding: calc(var(--header-height) + 40px) 20px 50px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .logo i {
+                font-size: 1.5rem;
+            }
+            
+            .category-title {
+                font-size: 1.6rem;
+            }
+            
+            .products-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-actions a span {
+                display: none;
+            }
+            
+            .user-actions a i {
+                font-size: 1.3rem;
+            }
+            
+            .download-btn {
+                flex-grow: 1;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar {
+                padding: 0 15px;
+            }
+            
+            .container {
+                padding: calc(var(--header-height) + 30px) 15px 40px;
+            }
+            
+            .category-title {
+                font-size: 1.4rem;
+                margin: 30px 0 15px;
+            }
+            
+            .wechat-notice {
+                padding: 6px 10px;
+            }
+            
+            .notice-text {
+                font-size: 13px;
+            }
+            
+            .footer-links {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="https://www.now61.cn/f/Bxg7ip/icon-compressed.png" alt="XMC工作室logo" class="logo-img">
+            XMC工作室
+        </div>
+        
+        <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="搜索产品..." id="searchInput">
+        </div>
+        
+        <div class="user-actions">
+            <a href="https://xmc3497x.github.io"><i class="fas fa-home"></i> <span>首页</span></a>
+            <a href="Download.html"><i class="fas fa-download"></i> <span>下载</span></a>
+            <a href="QRcode.html"><i class="fas fa-expand"></i> <span>扫描</span></a>
+        </div>
+    </nav>
+    
+    <!-- 公告栏 -->
+    <div id="wechat-notice" class="wechat-notice">
+        <div class="notice-icon">📢</div>
+        <div class="notice-content">
+            <span id="notice-text" class="notice-text">正在加载公告...</span>
+        </div>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="container">
+        <h1 hidden>XMC工作室 - 项目链接</h1>
+        
+        <h2 class="category-title">
+            <i class="fas fa-fire"></i>
+            项目链接
+        </h2>
+        <h4>等待新产品上架...</h4>
+        <div class="products-container">
+        </div>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-links">
+            <a href="call.html" class="footer-link">
+                <i class="fas fa-phone-alt"></i> 联系我们
+            </a>
+            <a href="https://shop.xiaoman.top//links/22C1816E" class="footer-link">
+                <i class="fas fa-shopping-cart"></i> 进入商店
+            </a>
+            <a href="helps.html" class="footer-link">
+                <i class="fas fa-question-circle"></i> 帮助中心
+            </a>
+            <a href="project.html" class="footer-link">
+            <i class="fas fa-link"></i> 项目链接
+            </a>
+            <a href="url.html" class="footer-link">
+            <i class="fas fa-link"></i> 友情链接
+            </a>
+        </div>
+        <div class="copyright">Copyright © 2024-<script>document.write(new Date().getFullYear())</script> XMC工作室</div>
+    </footer>
+
+    <script>
+        // 图片懒加载
+        document.addEventListener('DOMContentLoaded', function() {
+            const lazyImages = document.querySelectorAll('.product-image img[data-src]');
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        const parent = img.parentElement;
+                        
+                        img.onload = function() {
+                            parent.classList.add('loaded');
+                            const spinner = parent.querySelector('.loading-spinner');
+                            if (spinner) {
+                                spinner.style.display = 'none';
+                            }
+                        };
+                        
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '0px 0px 100px 0px'
+            });
+
+            lazyImages.forEach(img => {
+                imageObserver.observe(img);
+            });
+
+            // 搜索功能
+            const searchInput = document.getElementById('searchInput');
+            const productCards = document.querySelectorAll('.product-card');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                productCards.forEach(card => {
+                    const name = card.querySelector('.product-name').textContent.toLowerCase();
+                    const desc = card.querySelector('.product-desc').textContent.toLowerCase();
+                    
+                    if (name.includes(searchTerm) || desc.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+
+            // 获取并显示公告
+            async function fetchWechatNotice() {
+                try {
+                    const response = await fetch('https://www.now61.cn/f/YLDmfJ/notice.txt');
+                    const noticeText = (await response.text()).trim();
+                    const noticeElement = document.getElementById('notice-text');
+                    const noticeContainer = document.querySelector('.notice-content');
+                    
+                    if (noticeText) {
+                        noticeElement.textContent = noticeText;
+                        
+                        // 检测是否需要滚动
+                        setTimeout(() => {
+                            const containerWidth = noticeContainer.offsetWidth;
+                            const textWidth = noticeElement.scrollWidth;
+                            
+                            if (textWidth > containerWidth) {
+                                noticeElement.style.display = 'inline-block';
+                                noticeElement.style.animation = 'marquee 15s linear infinite';
+                                noticeElement.style.paddingLeft = '100%';
+                                noticeElement.style.whiteSpace = 'nowrap';
+                                
+                                // 添加动画样式
+                                const style = document.createElement('style');
+                                style.textContent = `
+                                    @keyframes marquee {
+                                        0% { transform: translateX(0); }
+                                        100% { transform: translateX(-${textWidth + 100}px); }
+                                    }
+                                `;
+                                document.head.appendChild(style);
+                            }
+                        }, 100);
+                    } else {
+                        document.getElementById('wechat-notice').style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('获取公告失败:', error);
+                    document.getElementById('wechat-notice').style.display = 'none';
+                }
+            }
+            
+            fetchWechatNotice();
+            
+            // 移动端菜单切换
+            const menuToggle = document.querySelector('.menu-toggle');
+            const searchBox = document.querySelector('.search-box');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    searchBox.style.display = searchBox.style.display === 'block' ? 'none' : 'block';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
