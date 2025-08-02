@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - XMC开发者中心</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e5799, #207cca, #2989d8, #1e5799);
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+            transition: transform 0.3s;
+        }
+        
+        .login-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, var(--primary-color), #1abc9c);
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            transform: rotate(30deg);
+        }
+        
+        .login-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+            position: relative;
+        }
+        
+        .login-subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .login-body {
+            padding: 2.5rem 2rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+        
+        /* 优化：图标框变窄 */
+        .input-group-text {
+            background-color: #f0f5ff;
+            border: 1px solid #ced4da;
+            border-right: none;
+            padding: 12px 12px;
+            border-radius: 10px 0 0 10px !important;
+            width: 40px;
+            justify-content: center;
+            color: var(--primary-color);
+            min-width: 40px;
+        }
+        
+        .form-control {
+            padding: 12px 15px;
+            border-radius: 0 10px 10px 0 !important;
+            border: 1px solid #ced4da;
+            border-left: none;
+            height: 100%;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.7rem;
+            color: var(--secondary-color);
+            display: block;
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, var(--primary-color), #1abc9c);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            font-size: 1.1rem;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .login-footer {
+            text-align: center;
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+            color: #95a5a6;
+            background-color: #f9f9f9;
+        }
+        
+        .login-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            margin-bottom: 1.8rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #login-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .btn-container {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            cursor: pointer;
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo {
+            height: 60px;
+            margin-bottom: 15px;
+        }
+        
+        .password-strength {
+            height: 5px;
+            background: #eee;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .strength-meter {
+            height: 100%;
+            width: 0;
+            background: var(--accent-color);
+            transition: width 0.3s, background 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h2 class="login-title">XMC开发者中心</h2>
+        </div>
+        
+        <div class="login-body">
+            <div class="logo-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/711/711769.png" alt="XMC Logo" class="logo">
+            </div>
+            
+            <div class="alert alert-danger d-none" id="error-alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span id="error-message"></span>
+            </div>
+            
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="username" class="form-label">用户名</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                        <input type="text" class="form-control" id="username" placeholder="输入用户名" required>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="password" class="form-label">密码</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" class="form-control" id="password" placeholder="输入密码" required>
+                        <span class="input-icon" id="toggle-password">
+                            <i class="bi bi-eye"></i>
+                        </span>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-meter" id="password-strength"></div>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button type="submit" class="btn btn-login" id="login-button">
+                        <span id="login-text">登录</span>
+                        <span id="login-spinner" class="spinner-border spinner-border-sm text-light d-none"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="login-footer">
+            <p>还没有账户？ <a href="#">申请注册</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+    <script>
+        // 密码可见性切换
+        document.getElementById('toggle-password').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+        
+        // 密码强度指示器
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthMeter = document.getElementById('password-strength');
+            let strength = 0;
+            
+            if (password.length > 0) strength += 20;
+            if (password.length >= 6) strength += 20;
+            if (/[A-Z]/.test(password)) strength += 20;
+            if (/[0-9]/.test(password)) strength += 20;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+            
+            strengthMeter.style.width = strength + '%';
+            
+            // 更新颜色
+            if (strength < 40) {
+                strengthMeter.style.backgroundColor = '#e74c3c';
+            } else if (strength < 80) {
+                strengthMeter.style.backgroundColor = '#f39c12';
+            } else {
+                strengthMeter.style.backgroundColor = '#2ecc71';
+            }
+        });
+        
+        // 登录表单提交
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorAlert = document.getElementById('error-alert');
+            const errorMessage = document.getElementById('error-message');
+            const loginButton = document.getElementById('login-button');
+            const loginText = document.getElementById('login-text');
+            const loginSpinner = document.getElementById('login-spinner');
+            
+            // 显示加载状态
+            loginText.textContent = '正在验证...';
+            loginSpinner.classList.remove('d-none');
+            loginButton.disabled = true;
+            errorAlert.classList.add('d-none');
+            
+            // 只使用一个API请求（用户凭据链接）
+            fetch('https://us1.wuaipan.com/api/v3/slave/source/0/dXBsb2Fkcy8yMDI1LzA4LzAyLzM1UFQyUzAwX0RldmVsb3BlcnMtdXNlcnMudHh0/Developers-users.txt?sign=Dpz3w_6hfdPqEdyhJ9-s2P6iv2wimvW4kZbbU95fHVU%3D%3A0')
+            .then(response => response.text())
+            .then(text => {
+                // 处理用户凭据
+                const credentials = text.split('\n')
+                    .filter(line => line.trim() !== '');
+                
+                // 计算输入密码的SHA-256哈希值
+                const inputPasswordHash = sha256(password);
+                
+                // 创建要匹配的字符串：用户名 + 空格 + 密码哈希
+                const matchString = username + " " + inputPasswordHash;
+                
+                // 验证用户 - 精确匹配行
+                const matched = credentials.some(line => line.trim() === matchString);
+                
+                if (matched) {
+                    // 保存登录状态
+                    localStorage.setItem('xmc_username', username);
+                    
+                    // 跳转到主页
+                    window.location.href = 'index.html';
+                } else {
+                    throw new Error('用户名或密码错误');
+                }
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                errorMessage.textContent = error.message || '登录失败，请稍后再试';
+                errorAlert.classList.remove('d-none');
+            })
+            .finally(() => {
+                // 重置按钮状态
+                loginText.textContent = '登录';
+                loginSpinner.classList.add('d-none');
+                loginButton.disabled = false;
+            });
+        });
+        
+        // 模拟API响应数据（仅供演示）
+        console.log("示例匹配字符串: admin 8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918");
+    </script>
+</body>
+</html>
