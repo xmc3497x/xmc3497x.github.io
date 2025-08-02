@@ -671,7 +671,7 @@
             // 获取并显示公告
             async function fetchWechatNotice() {
                 try {
-                    const response = await fetch('https://www.now61.cn/f/YLDmfJ/notice.txt');
+                    const response = await fetch('https://us1.wuaipan.com/api/v3/slave/source/0/dXBsb2Fkcy8yMDI1LzA2LzA3L3pzdnNWcGdqX1dlYk5vdGljZS50eHQ/WebNotice.txt?sign=hcy1gZ5MDSaxFWEHiFmaDujkBoA4FbL9rNUsUiqCJTY%3D%3A0');
                     const noticeText = (await response.text()).trim();
                     const noticeElement = document.getElementById('notice-text');
                     const noticeContainer = document.querySelector('.notice-content');
