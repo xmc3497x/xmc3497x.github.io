@@ -1,18 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset
-      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-      http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-<!-- created with Free Online Sitemap Generator https://www.eptimize.app -->
-  <url>
-    <loc>https://xmc3497x.github.io/</loc>
-    <lastmod>2025-05-14</lastmod>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://xmc3497x.github.io/XMCoffice/Download.html</loc>
-    <lastmod>2025-05-14</lastmod>
-    <priority>0.6</priority>
-  </url>
+    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+       http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+>
+
+<url>
+ <loc>https://xmc3497x.github.io/</loc>
+ <priority>1.0</priority>
+ <lastmod>2025-08-02</lastmod>
+ <changefreq>daily</changefreq>
+</url>
+<url>
+ <loc>https://xmc3497x.github.io/XMCoffice/Download.html</loc>
+ <priority>1.0</priority>
+ <lastmod>2025-08-01</lastmod>
+ <changefreq>daily</changefreq>
+</url>
+<url>
+ <loc>https://xmc3497x.github.io/XMCoffice/call.html</loc>
+ <priority>0.8</priority>
+ <lastmod>2025-08-01</lastmod>
+ <changefreq>weekly</changefreq>
+</url>
+<url>
+ <loc>https://xmc3497x.github.io/XMCoffice/helps.html</loc>
+ <priority>0.8</priority>
+ <lastmod>2025-08-01</lastmod>
+ <changefreq>weekly</changefreq>
+</url>
+<url>
+ <loc>https://xmc3497x.github.io/XMCoffice/project.html</loc>
+ <priority>0.8</priority>
+ <lastmod>2025-08-01</lastmod>
+ <changefreq>weekly</changefreq>
+</url>
+<url>
+ <loc>https://xmc3497x.github.io/XMCoffice/QRcode.html</loc>
+ <priority>0.8</priority>
+ <lastmod>2025-08-01</lastmod>
+ <changefreq>weekly</changefreq>
+</url>
+<url>
+ <loc>https://xmc3497x.github.io/XMCoffice/url.html</loc>
+ <priority>0.8</priority>
+ <lastmod>2025-08-01</lastmod>
+ <changefreq>weekly</changefreq>
+</url>
+<url>
+ <loc>https://xmc3497x.github.io/XMCoffice/developers/index.html</loc>
+ <priority>0.8</priority>
+ <lastmod>2025-08-01</lastmod>
+ <changefreq>weekly</changefreq>
+</url>
+<url>
+
 </urlset>
