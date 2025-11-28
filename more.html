@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XMC工作室</title>
+    <link rel="icon" href="https://www.now61.cn/f/Bxg7ip/icon-compressed.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            overflow: hidden;
+            height: 100vh;
+        }
+        /* 加载动画样式 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            transition: opacity 0.5s ease;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* 封面样式 */
+        .cover {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+        .bg-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(8px);
+            transform: scale(1.1);
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+        }
+        .title {
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1.5s ease-out forwards;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1.5s ease-out 0.5s forwards;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 80%;
+            margin-bottom: 30px;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* 按钮区域样式 */
+        .button-section {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .button-row {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 25px;
+            margin: 0 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            border: 2px solid white;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease-out forwards;
+            animation-fill-mode: forwards;
+            margin-bottom: 10px;
+        }
+        .btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .btn:nth-child(1) {
+            animation-delay: 1s;
+        }
+        .btn:nth-child(2) {
+            animation-delay: 1.2s;
+        }
+        .btn:nth-child(3) {
+            animation-delay: 1.4s;
+        }
+        .btn:nth-child(4) {
+            animation-delay: 1.6s;
+        }
+        .btn:nth-child(5) {
+            animation-delay: 1.8s;
+        }
+        /* 响应式设计 - 电脑端/横屏 */
+        @media (min-width: 768px), (orientation: landscape) {
+            .button-section {
+                flex-direction: row;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .button-row {
+                flex-direction: row;
+                margin-bottom: 0;
+                width: auto;
+            }
+            .btn {
+                margin: 0 10px;
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 加载动画 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- 封面部分 -->
+    <section class="cover">
+        <div class="bg-image">
+            <img src="https://dailybing.com/api/v1" alt="Bing每日壁纸1080P高清" />
+        </div>
+        <div class="overlay"></div>
+        
+        <!-- 添加的logo -->
+        <img src="https://www.now61.cn/f/Bxg7ip/icon-compressed.png" alt="XMC工作室logo" class="logo" id="logoImage">
+        
+        <h1 class="title">XMC工作室</h1>
+        <p class="subtitle">专业高效的HTML设计工作室</p>
+        
+        <!-- 按钮区域 -->
+        <div class="button-section" id="buttonContainer">
+            <!-- 按钮将通过JavaScript动态生成 -->
+        </div>
+    </section>
+
+    <script>
+        // 禁止滚动
+        document.body.style.overflow = 'hidden';
+        
+        // 按钮数据
+        const buttons = [
+            {href: "XMCoffice/Download.html", text: "产品下载"},
+            {href: "XMCoffice/call.html", text: "联系我们"},
+            {href: "https://shop.xiaoman.top//links/22C1816E", text: "进入商店"},
+            {href: "XMCoffice/helps.html", text: "帮助中心"},
+            {href: "javascript:alert('开发者中心正在维护中...[后续会在http://xmc3497.koym.cn站点中重新开发]')", text: "开发者中心"},
+            {href: "XMCoffice/project.html", text: "项目链接"},
+            {href: "XMCoffice/url.html", text: "友情链接"},
+            {href: "http://xmc3497.koym.cn", text: "新站点"}
+            // 可以继续添加更多按钮
+        ];
+        
+        // 动画是否已经播放的标志
+        let hasAnimated = false;
+        
+        // 创建按钮元素
+        function createButtons() {
+            const buttonContainer = document.getElementById('buttonContainer');
+            const isDesktop = window.innerWidth >= 768 || window.matchMedia("(orientation: landscape)").matches;
+            
+            if (isDesktop) {
+                // 电脑端/横屏 - 所有按钮在一行
+                buttonContainer.innerHTML = buttons.map((btn, index) =>
+                    `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + index*0.2}s">${btn.text}</a>`
+                ).join('');
+            } else {
+                // 移动端竖屏 - 分成两行
+                const half = Math.ceil(buttons.length / 2);
+                const firstRow = buttons.slice(0, half);
+                const secondRow = buttons.slice(half);
+                
+                buttonContainer.innerHTML = `
+                    <div class="button-row">
+                        ${firstRow.map((btn, index) =>
+                            `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + index*0.2}s">${btn.text}</a>`
+                        ).join('')}
+                    </div>
+                    <div class="button-row">
+                        ${secondRow.map((btn, index) =>
+                            `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + (index + half)*0.2}s">${btn.text}</a>`
+                        ).join('')}
+                    </div>
+                `;
+            }
+            
+            // 标记动画已经播放
+            hasAnimated = true;
+        }
+        
+        // 调整布局但不重新创建元素（避免动画重播）
+        function adjustLayout() {
+            const buttonContainer = document.getElementById('buttonContainer');
+            const isDesktop = window.innerWidth >= 768 || window.matchMedia("(orientation: landscape)").matches;
+            
+            if (isDesktop) {
+                buttonContainer.style.flexDirection = 'row';
+                buttonContainer.style.flexWrap = 'wrap';
+                buttonContainer.style.justifyContent = 'center';
+                
+                // 将所有按钮直接显示，不需要重新创建
+                const buttonRows = buttonContainer.querySelectorAll('.button-row');
+                if (buttonRows.length > 0) {
+                    buttonRows.forEach(row => {
+                        const buttons = row.querySelectorAll('.btn');
+                        buttons.forEach(btn => {
+                            buttonContainer.appendChild(btn);
+                        });
+                        row.remove();
+                    });
+                }
+            } else {
+                buttonContainer.style.flexDirection = 'column';
+                
+                // 如果已经有.button-row，则不需要重新创建
+                if (buttonContainer.querySelector('.button-row') === null) {
+                    const allButtons = buttonContainer.querySelectorAll('.btn');
+                    if (allButtons.length > 0) {
+                        const half = Math.ceil(allButtons.length / 2);
+                        const firstRow = document.createElement('div');
+                        firstRow.className = 'button-row';
+                        const secondRow = document.createElement('div');
+                        secondRow.className = 'button-row';
+                        
+                        for (let i = 0; i < allButtons.length; i++) {
+                            if (i < half) {
+                                firstRow.appendChild(allButtons[i]);
+                            } else {
+                                secondRow.appendChild(allButtons[i]);
+                            }
+                        }
+                        
+                        buttonContainer.innerHTML = '';
+                        buttonContainer.appendChild(firstRow);
+                        buttonContainer.appendChild(secondRow);
+                    }
+                }
+            }
+        }
+        
+        // 检查Logo是否加载完成
+        function checkLogoLoaded() {
+            const logoImage = document.getElementById('logoImage');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            // 如果Logo已经完成加载
+            if (logoImage.complete && logoImage.naturalWidth !== 0) {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500); // 等待淡出动画完成
+                return;
+            }
+            
+            // 添加加载完成和加载错误的监听器
+            logoImage.onload = function() {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500);
+            };
+            
+            logoImage.onerror = function() {
+                // 如果Logo加载失败，也隐藏加载动画
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500);
+            };
+            
+            // 设置超时，如果5秒后仍未加载完成，也隐藏加载动画
+            setTimeout(() => {
+                if (loadingOverlay.style.display !== 'none') {
+                    loadingOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingOverlay.style.display = 'none';
+                    }, 500);
+                }
+            }, 5000);
+        }
+
+        // 显示新站点提示
+        function showNewSiteNotification() {
+            const userConfirmed = confirm("新站点已开通，拥有更好的访问速度与更优质的功能！\n\n点击“确认”跳转至新站点\n点击“取消”继续访问该网站");
+            if (userConfirmed) {
+                // 这里替换为您的新站点URL
+                window.location.href = "http://xmc3497.koym.cn";
+            }
+        }
+        
+        // 初始加载
+        window.addEventListener('load', () => {
+            createButtons();
+            checkLogoLoaded();
+            
+            // 添加防抖的resize事件处理
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    adjustLayout();
+                }, 100);
+            });
+            
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    adjustLayout();
+                }, 100);
+            });
+
+            // 页面加载完成后显示新站点提示
+            setTimeout(() => {
+                showNewSiteNotification();
+            }, 1000);
+        });
+
+        // 强制5秒后显示页面内容，无论图片是否加载完成
+        setTimeout(() => {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay.style.display !== 'none') {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500);
+            }
+        }, 5000);
+    </script>
+</body>
+    </html>
