@@ -3,400 +3,839 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XMC工作室</title>
-    <link rel="icon" href="https://www.now61.cn/f/Bxg7ip/icon-compressed.png">
+    <title>XMC工作室 - 我的世界服务器</title>
+    <!-- Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Microsoft YaHei', sans-serif;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
+
         body {
-            overflow: hidden;
-            height: 100vh;
+            background: linear-gradient(135deg, #0c1a2a 0%, #0d2b45 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            cursor: none;
         }
-        /* 加载动画样式 */
-        .loading-overlay {
+
+        /* 背景蓝圈 */
+        .bg-circles {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 999;
-            transition: opacity 0.5s ease;
-        }
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        /* 封面样式 */
-        .cover {
-            position: relative;
-            height: 100vh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            z-index: -1;
             overflow: hidden;
         }
-        .bg-image {
+
+        .circle {
             position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 168, 255, 0.15);
+            opacity: 0.75;
+        }
+
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 5%;
+            background: rgba(0, 168, 255, 0.1);
+        }
+
+        .circle-2 {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            right: 10%;
+            background: rgba(0, 168, 255, 0.1);
+        }
+
+        .circle-3 {
+            width: 150px;
+            height: 150px;
+            bottom: 20%;
+            left: 20%;
+            background: rgba(0, 168, 255, 0.1);
+        }
+
+        .circle-4 {
+            width: 250px;
+            height: 250px;
+            top: 30%;
+            right: 20%;
+            background: rgba(0, 168, 255, 0.1);
+        }
+
+        /* 自定义鼠标样式 */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s;
+        }
+
+        .cursor-outer {
+            border: 2px solid rgba(0, 150, 255, 0.5);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 150, 255, 0.4);
+            width: 30px;
+            height: 30px;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.15s ease-out;
+        }
+
+        /* 导航栏样式 */
+        header {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            z-index: -2;
-        }
-        .bg-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: blur(8px);
-            transform: scale(1.1);
-        }
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: -1;
-        }
-        .logo {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 20px;
-            opacity: 0;
-            animation: fadeInUp 1s ease-out 0.5s forwards;
-        }
-        .title {
-            color: white;
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            opacity: 0;
-            transform: translateY(50px);
-            animation: fadeInUp 1.5s ease-out forwards;
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        .subtitle {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.2rem;
-            opacity: 0;
-            transform: translateY(50px);
-            animation: fadeInUp 1.5s ease-out 0.5s forwards;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            max-width: 80%;
-            margin-bottom: 30px;
-        }
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        /* 按钮区域样式 */
-        .button-section {
-            position: relative;
-            width: 100%;
+            padding: 20px 5%;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 25, 47, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .logo-container {
+            display: flex;
             align-items: center;
         }
-        .button-row {
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00a8ff, #0097e6);
+            border-radius: 8px;
+            margin-right: 10px;
             display: flex;
+            align-items: center;
             justify-content: center;
-            width: 100%;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
+            font-weight: bold;
+            font-size: 20px;
         }
-        .btn {
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00a8ff, #4cd137);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #00a8ff;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00a8ff;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            margin-left: 30px;
+        }
+
+        .search-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 8px 15px;
+            color: white;
+            width: 200px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            width: 250px;
+            border-color: #00a8ff;
+        }
+
+        .search-btn {
+            background: rgba(0, 168, 255, 0.2);
+            border: 1px solid #00a8ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: #00a8ff;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-btn:hover {
+            background: rgba(0, 168, 255, 0.4);
+        }
+
+        /* 移动端菜单按钮 */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: #fff;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        /* 主要内容区域 */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 10%;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 650px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 0 0 10px rgba(0, 168, 255, 0.5);
+            min-height: 4rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .typing-container {
+            position: relative;
             display: inline-block;
-            padding: 10px 25px;
-            margin: 0 10px;
-            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 3rem;
+            background: #00a8ff;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            color: #b0b0b0;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #00a8ff, #0097e6);
             color: white;
             text-decoration: none;
-            font-size: 1rem;
-            border: 2px solid white;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 1s ease-out forwards;
-            animation-fill-mode: forwards;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 168, 255, 0.4);
         }
-        .btn:hover {
-            background-color: rgba(255, 255, 255, 0.3);
+
+        .cta-button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 168, 255, 0.6);
         }
-        .btn:nth-child(1) {
-            animation-delay: 1s;
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
         }
-        .btn:nth-child(2) {
-            animation-delay: 1.2s;
+
+        .cta-button:hover::before {
+            left: 100%;
         }
-        .btn:nth-child(3) {
-            animation-delay: 1.4s;
+
+        /* 底部区域 */
+        footer {
+            background: rgba(5, 15, 30, 0.9);
+            padding: 50px 10% 30px;
         }
-        .btn:nth-child(4) {
-            animation-delay: 1.6s;
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
         }
-        .btn:nth-child(5) {
-            animation-delay: 1.8s;
+
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 30px;
+            padding-right: 20px;
         }
-        /* 响应式设计 - 电脑端/横屏 */
-        @media (min-width: 768px), (orientation: landscape) {
-            .button-section {
-                flex-direction: row;
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #00a8ff;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: #00a8ff;
+        }
+
+        .footer-column p {
+            color: #b0b0b0;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #b0b0b0;
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-links a:hover {
+            color: #00a8ff;
+        }
+
+        .footer-links a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .social-links {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            margin-right: 15px;
+            color: #b0b0b0;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: #00a8ff;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #8a8a8a;
+            font-size: 0.9rem;
+        }
+
+        /* Toast提示样式 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #00a8ff;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* 移动端样式 */
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 5%;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                right: -100%;
+                width: 80%;
+                height: calc(100vh - 70px);
+                background: rgba(10, 25, 47, 0.95);
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                padding-top: 40px;
+                transition: right 0.5s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links a {
+                margin: 15px 0;
+                font-size: 18px;
+            }
+
+            .search-container {
+                margin: 20px 0;
+                width: 80%;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .hero {
+                padding: 0 5%;
+                text-align: center;
                 justify-content: center;
-                flex-wrap: wrap;
             }
-            .button-row {
-                flex-direction: row;
-                margin-bottom: 0;
-                width: auto;
+
+            .hero h1 {
+                font-size: 2.5rem;
+                min-height: 3rem;
             }
-            .btn {
-                margin: 0 10px;
-                margin-bottom: 0;
+
+            .hero p {
+                font-size: 1.2rem;
+            }
+
+            .cta-button {
+                padding: 12px 30px;
+            }
+
+            .footer-column {
+                flex: 100%;
+                padding-right: 0;
+            }
+        }
+
+        /* Google风格加载动画 */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0c1a2a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .google-spinner {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .google-spinner div {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #00a8ff;
+            border-radius: 50%;
+            animation: google-spinner 1.2s linear infinite;
+        }
+
+        .google-spinner div:nth-child(1) {
+            animation-delay: 0s;
+            top: 37px;
+            left: 66px;
+        }
+
+        .google-spinner div:nth-child(2) {
+            animation-delay: -0.1s;
+            top: 22px;
+            left: 62px;
+        }
+
+        .google-spinner div:nth-child(3) {
+            animation-delay: -0.2s;
+            top: 11px;
+            left: 52px;
+        }
+
+        .google-spinner div:nth-child(4) {
+            animation-delay: -0.3s;
+            top: 7px;
+            left: 37px;
+        }
+
+        .google-spinner div:nth-child(5) {
+            animation-delay: -0.4s;
+            top: 11px;
+            left: 22px;
+        }
+
+        .google-spinner div:nth-child(6) {
+            animation-delay: -0.5s;
+            top: 22px;
+            left: 11px;
+        }
+
+        .google-spinner div:nth-child(7) {
+            animation-delay: -0.6s;
+            top: 37px;
+            left: 7px;
+        }
+
+        .google-spinner div:nth-child(8) {
+            animation-delay: -0.7s;
+            top: 52px;
+            left: 11px;
+        }
+
+        .google-spinner div:nth-child(9) {
+            animation-delay: -0.8s;
+            top: 62px;
+            left: 22px;
+        }
+
+        .google-spinner div:nth-child(10) {
+            animation-delay: -0.9s;
+            top: 66px;
+            left: 37px;
+        }
+
+        .google-spinner div:nth-child(11) {
+            animation-delay: -1s;
+            top: 62px;
+            left: 52px;
+        }
+
+        .google-spinner div:nth-child(12) {
+            animation-delay: -1.1s;
+            top: 52px;
+            left: 62px;
+        }
+
+        @keyframes google-spinner {
+            0%, 20%, 80%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.5);
             }
         }
     </style>
 </head>
 <body>
-    <!-- 加载动画 -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
+    <!-- 背景蓝圈 -->
+    <div class="bg-circles">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+        <div class="circle circle-4"></div>
     </div>
-    
-    <!-- 封面部分 -->
-    <section class="cover">
-        <div class="bg-image">
-            <img src="https://dailybing.com/api/v1" alt="Bing每日壁纸1080P高清" />
+
+    <!-- Google风格加载动画 -->
+    <div class="loader" id="loader">
+        <div class="google-spinner">
+            <div></div><div></div><div></div><div></div><div></div><div></div>
+            <div></div><div></div><div></div><div></div><div></div><div></div>
         </div>
-        <div class="overlay"></div>
-        
-        <!-- 添加的logo -->
-        <img src="https://www.now61.cn/f/Bxg7ip/icon-compressed.png" alt="XMC工作室logo" class="logo" id="logoImage">
-        
-        <h1 class="title">XMC工作室</h1>
-        <p class="subtitle">专业高效的HTML设计工作室</p>
-        
-        <!-- 按钮区域 -->
-        <div class="button-section" id="buttonContainer">
-            <!-- 按钮将通过JavaScript动态生成 -->
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 自定义鼠标效果 -->
+    <div class="custom-cursor" id="cursor"></div>
+    <div class="cursor-outer" id="cursor-outer"></div>
+
+    <!-- 导航栏 -->
+    <header>
+        <div class="logo-container">
+            <div class="logo" id="logo"></div>
+            <div class="logo-text">XMC工作室</div>
+        </div>
+        <div class="nav-links" id="navLinks">
+            <a href="#home" onclick="showToast('您已在首页')">首页</a>
+            <a href="XMCoffice/download.html">产品下载</a>
+            <a href="https://shop.xiaoman.top//links/22C1816E">进入商店</a>
+            <a href="XMCoffice/product.html">项目链接</a>
+            <a href="more.html">更多</a>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="搜索..." id="searchInput">
+                <button class="search-btn" id="searchBtn" onclick="handleSearch()">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="typing-container">
+                <h1 id="typing-text"></h1>
+            </div>
+            <p>专业高效的HTML设计工作室</p>
+            <a href="javascript:void(0)" class="cta-button" onclick="showToast('探索我们的精彩项目')">探索项目</a>
         </div>
     </section>
 
+    <!-- 底部区域 -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>XMC工作室</h3>
+                <p>专业高效的HTML设计工作室</p>
+                <p>Copyright © 2024-2025 XMC工作室</p>
+                <p>All Rights Reserved</p>
+            </div>
+            <div class="footer-column">
+                <h3>网站地图</h3>
+                <ul class="footer-links">
+                    <li><a href="#home" onclick="showToast('您已在首页')"><i class="fas fa-home"></i> 首页</a></li>
+                    <li><a href="XMCoffice/download.html"><i class="fas fa-download"></i> 产品下载</a></li>
+                    <li><a href="https://shop.xiaoman.top//links/22C1816E"><i class="fas fa-shop"></i> 商店</a></li>
+                    <li><a href="XMCoffice/product.html"><i class="fas fa-link"></i> 项目链接</a></li>
+                    <li><a href="more.html"><i class="fas fa-ellipsis-h"></i> 更多</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>联系我们</h3>
+                <ul class="footer-links">
+                    <li><a href="javascript:void(0)" onclick="showToast('邮箱: xmc3497@163.com')"><i class="fas fa-envelope"></i> xmc3497@163.com</a></li>
+                    <li><a href="javascript:void(0)" onclick="showToast('QQ: 2301835206')"><i class="fab fa-qq"></i> 2301835206</a></li>
+                    <li><a href="javascript:void(0)" onclick="showToast('微信号: xmc3497')"><i class="fab fa-weixin"></i> xmc3497</a></li>
+                </ul>
+                <div class="social-links">
+                    <a href="https://www.douyin.com/user/MS4wLjABAAAANOcwrTmdx33XL-eQRBb_QDlHUzEy1P05aGjdp683K7E?from_tab_name=main" title="抖音" onclick="showToast('跳转到抖音主页')"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://space.bilibili.com/3546731442605020?spm_id_from=333.337.0.0" title="B站" onclick="showToast('跳转到B站主页')"><i class="fab fa-bilibili"></i></a>
+                    <a href="javascript:void(0)" onclick="showToast('公众号：XMC科技社')" title="微信公众号"><i class="fab fa-weixin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        // 禁止滚动
-        document.body.style.overflow = 'hidden';
-        
-        // 按钮数据
-        const buttons = [
-            {href: "XMCoffice/Download.html", text: "产品下载"},
-            {href: "XMCoffice/call.html", text: "联系我们"},
-            {href: "https://shop.xiaoman.top//links/22C1816E", text: "进入商店"},
-            {href: "XMCoffice/helps.html", text: "帮助中心"},
-            {href: "javascript:alert('开发者中心正在维护中...[后续会在http://xmc3497.koym.cn站点中重新开发]')", text: "开发者中心"},
-            {href: "XMCoffice/project.html", text: "项目链接"},
-            {href: "XMCoffice/url.html", text: "友情链接"},
-            {href: "http://xmc3497.koym.cn", text: "新站点"}
-            // 可以继续添加更多按钮
-        ];
-        
-        // 动画是否已经播放的标志
-        let hasAnimated = false;
-        
-        // 创建按钮元素
-        function createButtons() {
-            const buttonContainer = document.getElementById('buttonContainer');
-            const isDesktop = window.innerWidth >= 768 || window.matchMedia("(orientation: landscape)").matches;
-            
-            if (isDesktop) {
-                // 电脑端/横屏 - 所有按钮在一行
-                buttonContainer.innerHTML = buttons.map((btn, index) =>
-                    `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + index*0.2}s">${btn.text}</a>`
-                ).join('');
-            } else {
-                // 移动端竖屏 - 分成两行
-                const half = Math.ceil(buttons.length / 2);
-                const firstRow = buttons.slice(0, half);
-                const secondRow = buttons.slice(half);
-                
-                buttonContainer.innerHTML = `
-                    <div class="button-row">
-                        ${firstRow.map((btn, index) =>
-                            `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + index*0.2}s">${btn.text}</a>`
-                        ).join('')}
-                    </div>
-                    <div class="button-row">
-                        ${secondRow.map((btn, index) =>
-                            `<a href="${btn.href}" class="btn" style="animation-delay: ${1 + (index + half)*0.2}s">${btn.text}</a>`
-                        ).join('')}
-                    </div>
-                `;
-            }
-            
-            // 标记动画已经播放
-            hasAnimated = true;
-        }
-        
-        // 调整布局但不重新创建元素（避免动画重播）
-        function adjustLayout() {
-            const buttonContainer = document.getElementById('buttonContainer');
-            const isDesktop = window.innerWidth >= 768 || window.matchMedia("(orientation: landscape)").matches;
-            
-            if (isDesktop) {
-                buttonContainer.style.flexDirection = 'row';
-                buttonContainer.style.flexWrap = 'wrap';
-                buttonContainer.style.justifyContent = 'center';
-                
-                // 将所有按钮直接显示，不需要重新创建
-                const buttonRows = buttonContainer.querySelectorAll('.button-row');
-                if (buttonRows.length > 0) {
-                    buttonRows.forEach(row => {
-                        const buttons = row.querySelectorAll('.btn');
-                        buttons.forEach(btn => {
-                            buttonContainer.appendChild(btn);
-                        });
-                        row.remove();
-                    });
-                }
-            } else {
-                buttonContainer.style.flexDirection = 'column';
-                
-                // 如果已经有.button-row，则不需要重新创建
-                if (buttonContainer.querySelector('.button-row') === null) {
-                    const allButtons = buttonContainer.querySelectorAll('.btn');
-                    if (allButtons.length > 0) {
-                        const half = Math.ceil(allButtons.length / 2);
-                        const firstRow = document.createElement('div');
-                        firstRow.className = 'button-row';
-                        const secondRow = document.createElement('div');
-                        secondRow.className = 'button-row';
-                        
-                        for (let i = 0; i < allButtons.length; i++) {
-                            if (i < half) {
-                                firstRow.appendChild(allButtons[i]);
-                            } else {
-                                secondRow.appendChild(allButtons[i]);
-                            }
-                        }
-                        
-                        buttonContainer.innerHTML = '';
-                        buttonContainer.appendChild(firstRow);
-                        buttonContainer.appendChild(secondRow);
-                    }
-                }
-            }
-        }
-        
-        // 检查Logo是否加载完成
-        function checkLogoLoaded() {
-            const logoImage = document.getElementById('logoImage');
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            
-            // 如果Logo已经完成加载
-            if (logoImage.complete && logoImage.naturalWidth !== 0) {
-                loadingOverlay.style.opacity = '0';
-                setTimeout(() => {
-                    loadingOverlay.style.display = 'none';
-                }, 500); // 等待淡出动画完成
-                return;
-            }
-            
-            // 添加加载完成和加载错误的监听器
-            logoImage.onload = function() {
-                loadingOverlay.style.opacity = '0';
-                setTimeout(() => {
-                    loadingOverlay.style.display = 'none';
-                }, 500);
-            };
-            
-            logoImage.onerror = function() {
-                // 如果Logo加载失败，也隐藏加载动画
-                loadingOverlay.style.opacity = '0';
-                setTimeout(() => {
-                    loadingOverlay.style.display = 'none';
-                }, 500);
-            };
-            
-            // 设置超时，如果5秒后仍未加载完成，也隐藏加载动画
+        // Toast提示功能
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
             setTimeout(() => {
-                if (loadingOverlay.style.display !== 'none') {
-                    loadingOverlay.style.opacity = '0';
-                    setTimeout(() => {
-                        loadingOverlay.style.display = 'none';
-                    }, 500);
-                }
-            }, 5000);
+                toast.style.display = 'none';
+            }, 3000);
         }
 
-        // 显示新站点提示
-        function showNewSiteNotification() {
-            const userConfirmed = confirm("新站点已开通，拥有更好的访问速度与更优质的功能！\n\n点击“确认”跳转至新站点\n点击“取消”继续访问该网站");
-            if (userConfirmed) {
-                // 这里替换为您的新站点URL
-                window.location.href = "http://xmc3497.koym.cn";
+        // 搜索功能处理
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                window.location.href = `XMCoffice/download.html?search=${encodeURIComponent(query)}`;
+            } else {
+                showToast('请输入搜索内容');
             }
         }
-        
-        // 初始加载
-        window.addEventListener('load', () => {
-            createButtons();
-            checkLogoLoaded();
+
+        // 页面加载完成后执行
+        window.addEventListener('load', function() {
+            // 隐藏加载动画
+            const loader = document.getElementById('loader');
+            setTimeout(() => {
+                loader.classList.add('hidden');
+            }, 1500);
+
+            // 初始化打字效果
+            const typingText = document.getElementById('typing-text');
+            const text = "XMC工作室";
+            let index = 0;
             
-            // 添加防抖的resize事件处理
-            let resizeTimer;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(() => {
-                    adjustLayout();
-                }, 100);
+            function type() {
+                if (index < text.length) {
+                    typingText.textContent += text.charAt(index);
+                    index++;
+                    setTimeout(type, 150);
+                } else {
+                    // 打字完成后添加光标
+                    const cursor = document.createElement('span');
+                    cursor.className = 'cursor';
+                    typingText.appendChild(cursor);
+                }
+            }
+            
+            // 延迟开始打字效果
+            setTimeout(type, 1800);
+
+            // 自定义鼠标效果
+            const cursor = document.getElementById('cursor');
+            const cursorOuter = document.getElementById('cursor-outer');
+            
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                
+                cursorOuter.style.left = e.clientX - 15 + 'px';
+                cursorOuter.style.top = e.clientY - 15 + 'px';
             });
             
-            window.addEventListener('orientationchange', () => {
+            // 点击效果
+            document.addEventListener('click', function() {
+                // 创建点击动画元素
+                const clickEffect = document.createElement('div');
+                clickEffect.style.position = 'fixed';
+                clickEffect.style.left = (event.clientX - 25) + 'px';
+                clickEffect.style.top = (event.clientY - 25) + 'px';
+                clickEffect.style.width = '50px';
+                clickEffect.style.height = '50px';
+                clickEffect.style.background = 'url(click.gif) no-repeat center';
+                clickEffect.style.backgroundSize = 'contain';
+                clickEffect.style.pointerEvents = 'none';
+                clickEffect.style.zIndex = '9999';
+                document.body.appendChild(clickEffect);
+                
+                // 移除动画元素
                 setTimeout(() => {
-                    adjustLayout();
-                }, 100);
+                    document.body.removeChild(clickEffect);
+                }, 500);
             });
 
-            // 页面加载完成后显示新站点提示
-            setTimeout(() => {
-                showNewSiteNotification();
-            }, 1000);
+            // 移动端菜单切换
+            const menuToggle = document.getElementById('menuToggle');
+            const navLinks = document.getElementById('navLinks');
+            
+            menuToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+
+            // 搜索功能
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            
+            searchBtn.addEventListener('click', handleSearch);
+            
+            // 按回车键搜索
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+            
+            // 加载logo图片
+            const logoElement = document.getElementById('logo');
+            // 这里可以替换为您自己的logo API链接
+            const logoUrl = 'https://www.now61.cn/f/Bxg7ip/icon-compressed.png';
+            const logoImg = new Image();
+            logoImg.onload = function() {
+                logoElement.style.backgroundImage = `url(${logoUrl})`;
+                logoElement.style.backgroundSize = 'cover';
+                logoElement.textContent = '';
+            };
+            logoImg.onerror = function() {
+                // 如果图片加载失败，显示默认logo
+                logoElement.textContent = 'XMC';
+                logoElement.style.background = 'linear-gradient(135deg, #00a8ff, #0097e6)';
+            };
+            logoImg.src = logoUrl;
         });
-
-        // 强制5秒后显示页面内容，无论图片是否加载完成
-        setTimeout(() => {
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            if (loadingOverlay.style.display !== 'none') {
-                loadingOverlay.style.opacity = '0';
-                setTimeout(() => {
-                    loadingOverlay.style.display = 'none';
-                }, 500);
-            }
-        }, 5000);
     </script>
 </body>
-    </html>
+</html>
