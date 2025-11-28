@@ -106,8 +106,6 @@
             vertical-align: middle; 
         }
         
-
-        
         .menu-toggle {
             display: none;
             background: none;
@@ -330,6 +328,37 @@
             background-color: #555;
         }
         
+        /* 搜索结果提示 */
+        .search-results-info {
+            padding: 15px 20px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .search-results-info p {
+            margin: 0;
+            color: #1565c0;
+            font-weight: 500;
+        }
+        
+        .clear-search {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .clear-search:hover {
+            background-color: var(--primary-hover);
+        }
+        
         /* 页脚 */
         footer {
             background: linear-gradient(135deg, #1a237e, #0d47a1);
@@ -486,6 +515,12 @@
     <!-- 主内容区 -->
     <div class="container">
         <h1 hidden>XMC工作室 - 产品下载</h1>
+        
+        <!-- 搜索结果提示区域 -->
+        <div id="searchResultsInfo" class="search-results-info" style="display: none;">
+            <p id="searchResultsText"></p>
+            <button id="clearSearch" class="clear-search">清除搜索</button>
+        </div>
         
         <h2 class="category-title">
             <i class="fas fa-fire"></i>
@@ -676,9 +711,13 @@
             // 搜索功能
             const searchInput = document.getElementById('searchInput');
             const productCards = document.querySelectorAll('.product-card');
+            const searchResultsInfo = document.getElementById('searchResultsInfo');
+            const searchResultsText = document.getElementById('searchResultsText');
+            const clearSearchBtn = document.getElementById('clearSearch');
             
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
+            // 执行搜索
+            function performSearch(searchTerm) {
+                let foundCount = 0;
                 
                 productCards.forEach(card => {
                     const name = card.querySelector('.product-name').textContent.toLowerCase();
@@ -686,11 +725,53 @@
                     
                     if (name.includes(searchTerm) || desc.includes(searchTerm)) {
                         card.style.display = 'block';
+                        foundCount++;
                     } else {
                         card.style.display = 'none';
                     }
                 });
+                
+                // 显示搜索结果信息
+                if (searchTerm) {
+                    searchResultsText.textContent = `搜索"${searchTerm}"，找到 ${foundCount} 个结果`;
+                    searchResultsInfo.style.display = 'flex';
+                    
+                    // 更新URL，但不刷新页面
+                    const newUrl = new URL(window.location);
+                    newUrl.searchParams.set('search', searchTerm);
+                    window.history.pushState({}, '', newUrl);
+                    
+                    // 更新搜索框内容
+                    searchInput.value = searchTerm;
+                } else {
+                    searchResultsInfo.style.display = 'none';
+                }
+            }
+            
+            // 输入框搜索
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                performSearch(searchTerm);
             });
+            
+            // 清除搜索
+            clearSearchBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                performSearch('');
+            });
+            
+            // 检查URL中的搜索参数
+            function checkUrlForSearch() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const searchTerm = urlParams.get('search');
+                
+                if (searchTerm) {
+                    performSearch(searchTerm.toLowerCase());
+                }
+            }
+            
+            // 初始化时检查URL参数
+            checkUrlForSearch();
 
             // 获取并显示公告
             async function fetchWechatNotice() {
@@ -748,4 +829,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
