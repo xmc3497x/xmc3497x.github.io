@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面跳转</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .header {
+            padding: 30px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        /* 微信提示样式 */
+        .wechat-tips {
+            padding: 20px 0;
+        }
+        
+        .wechat-icon {
+            font-size: 4rem;
+            color: #07C160;
+            margin-bottom: 20px;
+        }
+        
+        .wechat-tips h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .wechat-tips p {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+        
+        .steps {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .step:last-child {
+            margin-bottom: 0;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            margin-right: 12px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .step-text {
+            color: #555;
+            line-height: 1.4;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        /* 跳转提示样式 */
+        .redirect-tips {
+            padding: 30px 0;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(102, 126, 234, 0.2);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .redirect-tips h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .redirect-tips p {
+            color: #666;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .header {
+                padding: 25px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>页面跳转</h1>
+            <p>正在检测您的浏览器环境...</p>
+        </div>
+        
+        <div class="content">
+            <!-- 微信浏览器提示 -->
+            <div id="wechat-tips" class="wechat-tips" style="display: none;">
+                <div class="wechat-icon">
+                    <i class="fab fa-weixin"></i>
+                </div>
+                <h2>请在浏览器中打开</h2>
+                <p>微信内置浏览器无法访问此页面，请按以下步骤操作：</p>
+                
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-text">点击右上角"•••"菜单</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-text">选择"在浏览器打开"</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-text">使用系统浏览器访问</div>
+                    </div>
+                </div>
+                
+                <a href="#" class="btn" id="retry-btn">
+                    <i class="fas fa-redo"></i> 重新检测
+                </a>
+            </div>
+            
+            <!-- 系统浏览器跳转提示 -->
+            <div id="redirect-tips" class="redirect-tips" style="display: none;">
+                <div class="loading-spinner"></div>
+                <h2>正在跳转...</h2>
+                <p>页面即将跳转，请稍候</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 目标网址
+        const TARGET_URL = "http://xmc3497.koym.cn/ClassGrade";
+        
+        // 检测是否为微信浏览器
+        function isWechatBrowser() {
+            const ua = navigator.userAgent.toLowerCase();
+            return ua.indexOf('micromessenger') !== -1;
+        }
+        
+        // 显示微信浏览器提示
+        function showWechatTips() {
+            document.getElementById('wechat-tips').style.display = 'block';
+            
+            // 重新检测按钮功能
+            document.getElementById('retry-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                location.reload();
+            });
+        }
+        
+        // 立即跳转到目标网址
+        function redirectToTarget() {
+            document.getElementById('redirect-tips').style.display = 'block';
+            // 立即跳转，不等待
+            window.location.href = TARGET_URL;
+        }
+        
+        // 主检测函数
+        function detectBrowser() {
+            if (isWechatBrowser()) {
+                showWechatTips();
+            } else {
+                redirectToTarget();
+            }
+        }
+        
+        // 页面加载后立即检测
+        document.addEventListener('DOMContentLoaded', detectBrowser);
+        
+        // 如果页面已加载但DOMContentLoaded未触发，直接检测
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            detectBrowser();
+        }
+    </script>
+</body>
+</html>
