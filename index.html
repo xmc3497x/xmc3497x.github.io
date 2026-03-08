@@ -689,17 +689,17 @@
     <script>
         (function() {
             // 新域名
-            const NEW_DOMAIN = 'https://www.xmc3497.top';
+            const NEW_DOMAIN = 'https://xmc3497.top';
             // 获取当前页面的referrer
             var referrer = document.referrer || '';
             // 定义旧域名的标识 (从xmc3497.top 任何页面跳转过来)
-            // 注意：如果是从 https://www.xmc3497.top 或 http://xmc3497.top 等子路径过来
+            // 注意：如果是从 https://xmc3497.top 或 http://xmc3497.top 等子路径过来
             var isFromOldDomain = false;
             try {
                 if (referrer) {
                     var referrerUrl = new URL(referrer);
                     var hostname = referrerUrl.hostname;
-                    // 匹配主域名 xmc3497.top 或 www.xmc3497.top 等
+                    // 匹配主域名 xmc3497.top
                     if (hostname === 'xmc3497.top' || hostname === 'www.xmc3497.top') {
                         isFromOldDomain = true;
                     }
@@ -918,7 +918,7 @@
                 modal.className = 'domain-modal';
                 modal.innerHTML = `
                     <div class="domain-modal-content">
-                        <p>网站已移至新域名 www.xmc3497.top，本站将停止维护！<br>是否跳转？</p>
+                        <p>网站已移至新域名xmc3497.top，本站将停止维护！<br>是否跳转？</p>
                         <div class="domain-modal-buttons">
                             <button class="domain-modal-btn btn-confirm" id="modalConfirm">确定</button>
                             <button class="domain-modal-btn btn-cancel" id="modalCancel">取消</button>
